@@ -16,6 +16,15 @@ interface PostData {
 }
 
 const useStyles = createStyles((theme) => ({
+  container: {
+    backgroundColor: "white",
+    borderRadius: "0.5rem",
+    padding: "2rem",
+    "pre": {
+      backgroundColor: "#ecf5eb"
+    }
+  },
+
   badge: {
     '.mantine-Badge-inner': {
       display: 'flex',
@@ -34,8 +43,8 @@ const dateFormatter = new Intl.DateTimeFormat(undefined, {
 const Post: React.FC<PostData> = ({ title, author, body, category, createdAt }) => {
   const { classes, cx } = useStyles();
 
-  return <Container>
-    <Title>{title}</Title>
+  return <Container className={classes.container}>
+    <Title mb="1.5rem">{title}</Title>
     <Flex gap='0.5rem'>
       <Badge className={classes.badge} color="lime" size="lg" radius="sm" variant="outline">
         <IconCalendarTime size={16} />

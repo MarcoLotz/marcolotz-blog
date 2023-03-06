@@ -102,8 +102,8 @@ const Header = ({ user }: HeaderTabsProps) => {
       <Container className={classes.mainSection}>
         <Group position="apart">
           <div>
-            <Title size={30}>Marco Aurelio Lotz</Title>
-            <Text size={12}>Thoughts about Big Data and Embedded Systems</Text>
+            <Title size={45}>Marco Aurelio Lotz</Title>
+            <Text color="gray" size={15}>Thoughts about Big Data and Embedded Systems</Text>
           </div>
 
           <Burger opened={opened} onClick={toggle} className={classes.burger} size="sm" />
@@ -159,13 +159,13 @@ const Header = ({ user }: HeaderTabsProps) => {
             <Tabs.Tab value="Home" onClick={() => Router.push('/')}>
               Home
             </Tabs.Tab>
-            <Tabs.Tab value="About" onClick={() => Router.push('/About')}>
+            <Tabs.Tab value="About" onClick={() => Router.push('/about')}>
               About
             </Tabs.Tab>
             <Tabs.Tab value="Github" onClick={() => window.open('https://github.com/marcolotz')}>
               Github
             </Tabs.Tab>
-            <Tabs.Tab value="Contact" onClick={() => Router.push('/Contact')}>
+            <Tabs.Tab value="Contact" onClick={() => Router.push('/contact')}>
               Contact
             </Tabs.Tab>
           </Tabs.List>
