@@ -21,7 +21,7 @@ const useStyles = createStyles((theme) => ({
     borderRadius: "0.5rem",
     padding: "2rem",
     "pre": {
-      backgroundColor: "#ecf5eb"
+      backgroundColor: "#e9ebe8"
     }
   },
 
@@ -41,7 +41,7 @@ const dateFormatter = new Intl.DateTimeFormat(undefined, {
 });
 
 const Post: React.FC<PostData> = ({ title, author, body, category, createdAt }) => {
-  const { classes, cx } = useStyles();
+  const { classes } = useStyles();
 
   return <Container className={classes.container}>
     <Title mb="1.5rem">{title}</Title>
