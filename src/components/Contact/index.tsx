@@ -65,25 +65,25 @@ const Contact: React.FC = () => {
 
     <Center>
       <Stack w={"20rem"}>
-        <a href="https://www.linkedin.com/in/marcolotz/" type="button">
+        <a target="_blank" href="https://www.linkedin.com/in/marcolotz/" type="button">
           <Badge className={classes.badge} leftSection={<IconBrandLinkedin size="1.5rem" />} size="xl" radius="0.3rem" variant="outline">
             <Text ml="3.5rem">LinkedIn</Text>
           </Badge>
         </a>
 
-        <a href="https://twitter.com/lotzmarco" type="button">
+        <a target="_blank" href="https://twitter.com/lotzmarco" type="button">
           <Badge className={classes.badge} leftSection={<IconBrandTwitter size="1.5rem" />} size="xl" radius="0.3rem" variant="outline">
             <Text ml="3.5rem">Twitter</Text>
           </Badge>
         </a>
 
-        <a href="https://github.com/marcolotz" type="button">
+        <a target="_blank" href="https://github.com/marcolotz" type="button">
           <Badge className={classes.badge} leftSection={<IconBrandGithub size="1.5rem" />} size="xl" radius="0.3rem" variant="outline">
             <Text ml="3.8rem">Github</Text>
           </Badge>
         </a>
 
-        <a href="https://scholar.google.com/citations?hl=en&view_op=list_works&gmla=AJsN-F5QS1KdMYiF5OV9acpzgB_1h-RalA6WUxpgjxB5CRaeuyyprGL3AGfqiKKGpdpgqtCCIk-v4htT06LUuFkQKlC_k3yRFw&user=TeyCW8MAAAAJ" type="button">
+        <a target="_blank" href="https://scholar.google.com/citations?hl=en&view_op=list_works&gmla=AJsN-F5QS1KdMYiF5OV9acpzgB_1h-RalA6WUxpgjxB5CRaeuyyprGL3AGfqiKKGpdpgqtCCIk-v4htT06LUuFkQKlC_k3yRFw&user=TeyCW8MAAAAJ" type="button">
           <Badge className={classes.badge} leftSection={<IconBrandGoogle size="1.5rem" />} size="xl" radius="0.3rem" variant="outline">
             <Text ml="1.3rem">Google Scholar</Text>
           </Badge>

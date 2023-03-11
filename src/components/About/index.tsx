@@ -1,5 +1,6 @@
 import { Image, Center, Container, createStyles, Text, Title, Card, rem, Flex, List } from '@mantine/core';
 import React from 'react';
+import MarcoImg from '@/assets/marco.jpg';
 
 
 const useStyles = createStyles(() => ({
@@ -63,14 +64,14 @@ const About: React.FC = () => {
     <Center>
       <Card withBorder radius="md" p={2} className={cx(classes.card)}>
         <Card.Section>
-          <Image src="https://marcolotz.com/wp-content/uploads/2014/04/IMG_8256.jpg" width={265} />
+          <Image src={MarcoImg.src} width={265} />
         </Card.Section>
       </Card>
     </Center>
     <Text className={classes.text}>
       Yes, yes… you have no idea of how many free pints I got with bets of the other person correctly
       saying my name after only one repetition. I guess that the whole name (just guessing) would be too
-      long for a website. Thus opted for Marco Lotz.
+      long for a website. Thus opted for <strong>Marco Lotz</strong>.
     </Text>
     <Text className={classes.text}>
       I am a 31 year-old Electronics and Telecommunications Engineer and I’ve been working as a Vice
