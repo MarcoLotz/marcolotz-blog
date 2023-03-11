@@ -20,9 +20,11 @@ const useStyles = createStyles((theme) => ({
     backgroundColor: "white",
     borderRadius: "0.5rem",
     padding: "2rem",
+    marginBottom: "1.5rem",
+
     "pre": {
       backgroundColor: "#e9ebe8"
-    }
+    },
   },
 
   badge: {
@@ -44,11 +46,11 @@ const Post: React.FC<PostData> = ({ title, author, body, category, createdAt }) 
   const { classes } = useStyles();
 
   return <Container className={classes.container}>
-    <Title mb="1.5rem">{title}</Title>
-    <Flex gap='0.5rem'>
+    <Title mb="1.0rem">{title}</Title>
+    <Flex gap='0.5rem' mb="md">
       <Badge className={classes.badge} color="lime" size="lg" radius="sm" variant="outline">
         <IconCalendarTime size={16} />
-        <Text mt={2.3}>{dateFormatter.format(createdAt)}</Text>
+        <Text mt={2.3}>{dateFormatter.format(new Date(createdAt))}</Text>
       </Badge>
       <Badge className={classes.badge} color="lime" size="lg" radius="sm" variant="outline">
         <IconUser size={16} />
@@ -69,7 +71,7 @@ const Post: React.FC<PostData> = ({ title, author, body, category, createdAt }) 
         }}
       />
     </TypographyStylesProvider>
-  </Container>;
+  </Container >;
 }
 
 export default Post;
