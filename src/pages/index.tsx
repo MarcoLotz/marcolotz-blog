@@ -99,14 +99,14 @@ export default function Home({ data }: { data: PostsResponse }) {
             createdAt={post.createdAt}
             title={post.title} />
         ))}
-        <Center>
-          <Pagination
-            m="lg"
-            value={pageData.pageIndex}
-            onChange={page => setPageData(prev => ({ ...prev, pageIndex: page }))}
-            total={pageData.totalPages}
-          />
-        </Center>
+        <Pagination
+          m="lg"
+          ml="0"
+          mt="0"
+          value={pageData.pageIndex}
+          onChange={page => setPageData(prev => ({ ...prev, pageIndex: page }))}
+          total={pageData.totalPages}
+        />
       </Container>
     </>
   )
