@@ -8,7 +8,9 @@ const useStyles = createStyles((theme) => ({
     borderRadius: "0.5rem",
     padding: "2rem",
     color: "#616161",
-
+    border: "0.0625rem solid #ced4da",
+    marginBottom: "7rem",
+    marginTop: "4rem",
 
     display: "flex",
     flexDirection: "column",

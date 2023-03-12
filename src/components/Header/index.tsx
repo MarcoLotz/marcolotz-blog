@@ -26,7 +26,7 @@ const useStyles = createStyles((theme) => ({
     backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
     borderBottom: `${rem(1)} solid ${theme.colorScheme === 'dark' ? 'transparent' : theme.colors.gray[2]
       }`,
-    marginBottom: rem(50),
+    marginBottom: rem(20),
   },
 
   mainSection: {
@@ -131,7 +131,9 @@ const Header = ({ user }: HeaderTabsProps) => {
             </Menu.Target>
             <Menu.Dropdown>
               <Menu.Label>Settings</Menu.Label>
-              <Menu.Item icon={<IconFilePlus size="1.3rem" stroke={1.5} />}>
+              <Menu.Item
+                onClick={() => Router.push('/admin/newPost')}
+                icon={<IconFilePlus size="1.3rem" stroke={1.5} />}>
                 New Post
               </Menu.Item>
 

@@ -10,15 +10,23 @@ export type PostData = {
   createdAt: Date;
 }
 
+export interface PostsResponse {
+  items: PostData[];
+  pageIndex: number;
+  count: number;
+  totalPages: number;
+}
+
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<PostData[]>
+  res: NextApiResponse<PostsResponse>
 ) {
-  const { pageIndex } = req.query;
+  const { pageIndex, searchText } = req.query;
 
-  const posts = await getPosts(
+  const response = await getPosts(
     pageIndex ? Number.parseInt(pageIndex as string) : 1,
-    3);
+    3,
+    searchText as string);
 
-  res.status(200).json(posts);
+  res.status(200).json(response);
 }

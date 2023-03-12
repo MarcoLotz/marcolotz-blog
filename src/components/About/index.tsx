@@ -5,6 +5,7 @@ import MarcoImg from '@/assets/marco.jpg';
 
 const useStyles = createStyles(() => ({
   container: {
+    border: "0.0625rem solid #ced4da",
     backgroundColor: "white",
     borderRadius: "0.5rem",
     padding: "2rem",
@@ -51,6 +52,9 @@ const useStyles = createStyles(() => ({
 const About: React.FC = () => {
   const { classes, cx } = useStyles();
 
+  const diff = (new Date().getTime() - new Date(645249553000).getTime());
+  const yearsOld = Math.floor(diff / (1000 * 60 * 60 * 24 * 365))
+
   return <Container className={classes.container}>
     <Title size={43} color="black">$Whoami</Title>
     <Text className={classes.text}>
@@ -74,7 +78,7 @@ const About: React.FC = () => {
       long for a website. Thus opted for <strong>Marco Lotz</strong>.
     </Text>
     <Text className={classes.text}>
-      I am a 31 year-old Electronics and Telecommunications Engineer and I’ve been working as a Vice
+      I am a {yearsOld} year-old Electronics and Telecommunications Engineer and I’ve been working as a Vice
       President for Swiss Re. I lead a globally distributed team composed of a mosaic of backgrounds
       (from PhDs in Mathematics to Apache open source contributors) driving Stargate Platform.
     </Text>

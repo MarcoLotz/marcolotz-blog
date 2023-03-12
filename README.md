@@ -2,7 +2,40 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Getting Started
 
-First, run the development server:
+Installing Dependencies:
+
+```bash
+npm install
+# or
+yarn
+```
+
+If your firebase credential is not set, put your credential file (JSON) in src/assets as credential.json.
+The credential.json must have this format:
+
+```json
+{
+  "type": "string",
+  "project_id": "string",
+  "private_key_id": "string",
+  "private_key": "string",
+  "client_email": "string",
+  "client_id": "string",
+  "auth_uri": "string",
+  "token_uri": "string",
+  "auth_provider_x509_cert_url": "string",
+  "client_x509_cert_url": "string"
+}
+```
+
+So, if the database is not initially updated, run the following script:
+```bash
+npm run populate
+#or
+yarn populate
+```
+
+Finally, run the development server:
 
 ```bash
 npm run dev

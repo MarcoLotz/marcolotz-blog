@@ -49,6 +49,7 @@ const Editor: React.FC<EditorProps> = ({ onChange, value }) => {
             <RichTextEditor.Strikethrough />
             <RichTextEditor.ClearFormatting />
             <RichTextEditor.Code />
+            <RichTextEditor.CodeBlock />
           </RichTextEditor.ControlsGroup>
 
           <RichTextEditor.ControlsGroup>
@@ -108,11 +109,13 @@ const Editor: React.FC<EditorProps> = ({ onChange, value }) => {
             <RichTextEditor.Color color="#37B24D" />
             <RichTextEditor.Color color="#F59F00" />
           </RichTextEditor.ControlsGroup>
-
-          <RichTextEditor.UnsetColor />
         </RichTextEditor.Toolbar>
 
-        <RichTextEditor.Content />
+        <RichTextEditor.Content sx={{
+          'pre': {
+            background: '#e9ebe8'
+          }
+        }} mih="300px" />
       </RichTextEditor>
     </Container>
   );

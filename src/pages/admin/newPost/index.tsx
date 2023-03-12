@@ -8,10 +8,10 @@ const NewPost: React.FC = () => {
 
   return <Container>
     <Flex mb="2rem" justify="space-between">
-      <Button color="red" w="9rem" ml="1rem" variant="outline">
+      <Button bg="white" color="red" w="9rem" ml="1rem" variant="outline">
         <IconX /> <Text ml="0.8rem" size={20}>Cancel</Text>
       </Button>
-      <Button color="green" w="8rem" mr="1rem" variant="outline">
+      <Button bg="white" color="green" w="8rem" mr="1rem" variant="outline">
         <IconDeviceFloppy /> <Text ml="0.8rem" size={20}>Save</Text>
       </Button>
     </Flex>

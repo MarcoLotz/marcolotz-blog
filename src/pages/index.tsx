@@ -1,26 +1,29 @@
 import Head from 'next/head'
-import { Container } from '@mantine/core'
+import { Center, Container, Input, Pagination, TextInput } from '@mantine/core'
 import Post from '@/components/Post'
 import { useEffect, useState } from 'react'
-import { PostData } from './api/posts'
+import { PostData, PostsResponse } from './api/posts'
 import api from '@/services/api'
+import { IconSearch } from '@tabler/icons-react'
+import { debounce } from 'lodash';
 
-const getPosts = async (pageIndex: number): Promise<PostData[]> => {
-  const { data: posts } = await api.get<PostData[]>('/api/posts', {
+const getPosts = async (pageIndex: number, searchText: string = ''): Promise<PostsResponse> => {
+  const { data: data } = await api.get<PostsResponse>('/api/posts', {
     params: {
-      pageIndex
+      pageIndex,
+      searchText
     }
   });
 
-  return posts;
+  return data;
 };
 
 export async function getStaticProps() {
-  const initialPosts = await getPosts(1);
+  const data = await getPosts(1);
 
   return {
     props: {
-      initialPosts
+      data
     }
   }
 }
@@ -30,20 +33,36 @@ interface PageData {
   totalPages: number;
 }
 
-export default function Home({ initialPosts }: { initialPosts: PostData[] }) {
-  const [posts, setPosts] = useState<PostData[]>(initialPosts)
-  console.log(posts);
+export default function Home({ data }: { data: PostsResponse }) {
+  const [posts, setPosts] = useState<PostData[]>(data.items);
+  const [searchText, setSearchText] = useState('');
   const [pageData, setPageData] = useState<PageData>({
     pageIndex: 1,
-    totalPages: 3,
+    totalPages: data.totalPages,
   });
 
+  const debouncedSetSearchText = debounce((text: string) => {
+    setSearchText(text);
+  }, 500);
+
   useEffect(() => {
-    if (pageData.pageIndex === 1)
-      setPosts(initialPosts);
+    if (pageData.pageIndex === 1 && !searchText) {
+      setPosts(data.items);
+      setPageData(prev => ({ ...prev, totalPages: data.totalPages }))
+    }
     else
-      getPosts(pageData.pageIndex).then(res => setPosts(res));
-  }, [pageData.pageIndex]);
+      getPosts(pageData.pageIndex, searchText)
+        .then(res => {
+          setPosts(res.items);
+          setPageData(prev => ({ ...prev, totalPages: res.totalPages }));
+        });
+  }, [pageData.pageIndex, searchText]);
+
+  useEffect(() => {
+    if (pageData.pageIndex !== 1)
+      setPageData({ ...pageData, pageIndex: 1 })
+
+  }, [pageData.totalPages])
 
   return (
     <>
@@ -54,6 +73,23 @@ export default function Home({ initialPosts }: { initialPosts: PostData[] }) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Container>
+
+        <Pagination
+          m="lg"
+          ml="0"
+          mt="0"
+          value={pageData.pageIndex}
+          onChange={page => setPageData(prev => ({ ...prev, pageIndex: page }))}
+          total={pageData.totalPages}
+        />
+        <Input
+          m="lg"
+          ml="0"
+          maw="400px"
+          icon={<IconSearch />}
+          placeholder="Search"
+          onChange={({ target }) => debouncedSetSearchText(target.value)}
+        />
         {posts.map(post => (
           <Post
             key={post.id}
@@ -63,6 +99,14 @@ export default function Home({ initialPosts }: { initialPosts: PostData[] }) {
             createdAt={post.createdAt}
             title={post.title} />
         ))}
+        <Center>
+          <Pagination
+            m="lg"
+            value={pageData.pageIndex}
+            onChange={page => setPageData(prev => ({ ...prev, pageIndex: page }))}
+            total={pageData.totalPages}
+          />
+        </Center>
       </Container>
     </>
   )

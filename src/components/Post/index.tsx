@@ -5,8 +5,6 @@ import sanitizeHtml from 'sanitize-html';
 
 import React from 'react';
 
-// import { Container } from './styles';
-
 interface PostData {
   title: string;
   author: string;
@@ -15,16 +13,13 @@ interface PostData {
   createdAt: Date;
 }
 
-const useStyles = createStyles((theme) => ({
+const useStyles = createStyles(() => ({
   container: {
     backgroundColor: "white",
     borderRadius: "0.5rem",
     padding: "2rem",
     marginBottom: "1.5rem",
-
-    "pre": {
-      backgroundColor: "#e9ebe8"
-    },
+    border: "0.0625rem solid #ced4da"
   },
 
   badge: {
@@ -34,6 +29,15 @@ const useStyles = createStyles((theme) => ({
       justifyContent: 'center',
       gap: '0.5rem'
     }
+  },
+  htmlProvider: {
+    'figure, img': {
+      textAlign: 'center',
+      margin: '0 auto'
+    },
+    "pre": {
+      backgroundColor: "#e9ebe8"
+    },
   }
 
 }));
@@ -62,7 +66,7 @@ const Post: React.FC<PostData> = ({ title, author, body, category, createdAt }) 
       </Badge>
     </Flex>
 
-    <TypographyStylesProvider>
+    <TypographyStylesProvider className={classes.htmlProvider}>
       <div
         dangerouslySetInnerHTML={{
           __html: sanitizeHtml(body, {
