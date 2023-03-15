@@ -116,7 +116,7 @@ const Header = ({ user }: HeaderTabsProps) => {
             onOpen={() => setUserMenuOpened(true)}
             withinPortal
           >
-            <Menu.Target>
+            {/* <Menu.Target>
               <UnstyledButton
                 className={cx(classes.user, { [classes.userActive]: userMenuOpened })}
               >
@@ -141,7 +141,7 @@ const Header = ({ user }: HeaderTabsProps) => {
 
               <Menu.Divider />
 
-            </Menu.Dropdown>
+            </Menu.Dropdown> */}
           </Menu>
         </Group>
       </Container>

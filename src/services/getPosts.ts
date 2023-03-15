@@ -11,14 +11,19 @@ type PostData = {
 }
 
 export default async function getPosts(pageIndex: number, pageSize: number, searchText = '') {
-  let query;
+  let query = {} as any;
 
   if (searchText) {
-    searchText = searchText.toUpperCase();
-    query = firebaseClient.collection('posts')
-      .orderBy('search', 'asc')
-      .where('search', '>=', searchText)
-      .where('search', '<=', searchText + '\uf8ff');
+    const searchItems = searchText
+      .trim()
+      .toUpperCase()
+      .split(' ');
+
+    searchItems.forEach(search => {
+      query = firebaseClient.collection('posts')
+        .where('search', 'array-contains', search);
+    });
+
   } else {
     query = firebaseClient.collection('posts')
       .orderBy('createdAt', 'desc');
@@ -31,7 +36,7 @@ export default async function getPosts(pageIndex: number, pageSize: number, sear
     .limit(pageSize)
     .get();
 
-  const posts = data.docs.map(doc => {
+  const posts = data.docs.map((doc: any) => {
     const postData = doc.data() as PostData;
 
     return {
