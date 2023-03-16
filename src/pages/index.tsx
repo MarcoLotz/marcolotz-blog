@@ -1,13 +1,14 @@
 import Head from 'next/head'
-import { Center, Container, Input, Pagination, TextInput } from '@mantine/core'
+import { Container, Input, Pagination } from '@mantine/core'
 import Post from '@/components/Post'
 import { useEffect, useState } from 'react'
 import { PostData, PostsResponse } from './api/posts'
 import api from '@/services/api'
 import { IconSearch } from '@tabler/icons-react'
 import { debounce } from 'lodash';
+import getPosts from '@/services/getPosts'
 
-const getPosts = async (pageIndex: number, searchText: string = ''): Promise<PostsResponse> => {
+const getPagedPosts = async (pageIndex: number, searchText: string = ''): Promise<PostsResponse> => {
   const { data: data } = await api.get<PostsResponse>('/api/posts', {
     params: {
       pageIndex,
@@ -19,7 +20,7 @@ const getPosts = async (pageIndex: number, searchText: string = ''): Promise<Pos
 };
 
 export async function getStaticProps() {
-  const data = await getPosts(1);
+  const data = await getPosts(1, 3);
 
   return {
     props: {
@@ -51,7 +52,7 @@ export default function Home({ data }: { data: PostsResponse }) {
       setPageData(prev => ({ ...prev, totalPages: data.totalPages }))
     }
     else
-      getPosts(pageData.pageIndex, searchText)
+      getPagedPosts(pageData.pageIndex, searchText)
         .then(res => {
           setPosts(res.items);
           setPageData(prev => ({ ...prev, totalPages: res.totalPages }));

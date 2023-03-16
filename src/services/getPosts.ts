@@ -42,7 +42,7 @@ export default async function getPosts(pageIndex: number, pageSize: number, sear
     return {
       ...postData,
       id: doc.id,
-      createdAt: new Date(postData.createdAt.seconds * 1000)
+      createdAt: new Date(postData.createdAt.seconds * 1000).toISOString()
     };
   });
 
