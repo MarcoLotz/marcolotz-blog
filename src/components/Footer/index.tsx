@@ -1,6 +1,5 @@
 import { ActionIcon, Container, createStyles, Group, rem } from '@mantine/core';
-import { MantineLogo } from '@mantine/ds';
-import { IconBrandGithub, IconBrandGoogle, IconBrandInstagram, IconBrandLinkedin, IconBrandTwitter, IconBrandYoutube } from '@tabler/icons-react';
+import { IconBrandGithub, IconBrandGoogle, IconBrandLinkedin, IconBrandTwitter } from '@tabler/icons-react';
 import React from 'react';
 
 const useStyles = createStyles((theme) => ({

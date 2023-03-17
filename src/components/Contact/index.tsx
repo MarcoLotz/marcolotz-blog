@@ -1,4 +1,4 @@
-import { Anchor, Badge, Center, Container, createStyles, Stack, Text, Title } from '@mantine/core';
+import { Badge, Center, Container, createStyles, Stack, Text, Title } from '@mantine/core';
 import { IconBrandGithub, IconBrandGoogle, IconBrandLinkedin, IconBrandTwitter } from '@tabler/icons-react';
 import React from 'react';
 

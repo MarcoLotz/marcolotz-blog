@@ -2,8 +2,6 @@ import { useState } from 'react';
 import {
   createStyles,
   Container,
-  Avatar,
-  UnstyledButton,
   Group,
   Text,
   Menu,
@@ -14,11 +12,6 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import Router from 'next/router';
-import {
-  IconLogout,
-  IconChevronDown,
-  IconFilePlus,
-} from '@tabler/icons-react';
 
 const useStyles = createStyles((theme) => ({
   header: {

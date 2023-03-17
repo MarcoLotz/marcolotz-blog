@@ -1,4 +1,4 @@
-import { Image, Center, Container, createStyles, Text, Title, Card, rem, Flex, List } from '@mantine/core';
+import { Image, Center, Container, createStyles, Text, Title, Card, rem, List } from '@mantine/core';
 import React from 'react';
 import MarcoImg from '@/assets/marco.jpg';
 
