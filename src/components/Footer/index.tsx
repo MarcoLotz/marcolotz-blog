@@ -43,11 +43,11 @@ const useStyles = createStyles((theme) => ({
 
 const Footer: React.FC = () => {
   const { classes } = useStyles();
-
+  const date = new Date().getFullYear()
   return (
     <div className={classes.footer}>
       <Container className={classes.inner}>
-        <span>@Marco Aurélio Lotz</span>
+        <span>© {date} by Marco Aurélio Lotz</span>
         <Group spacing={0} className={classes.links} position="right" noWrap>
           <a href="https://www.linkedin.com/in/marcolotz/" target="_blank">
             <ActionIcon size="lg">
