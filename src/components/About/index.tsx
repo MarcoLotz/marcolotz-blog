@@ -2,6 +2,7 @@ import { Image, Center, Container, createStyles, Text, Title, Card, rem, List } 
 import React from 'react';
 import MarcoImg from '@/assets/marco.jpg';
 
+const birthday = new Date(1990, 6, 13)
 
 const useStyles = createStyles(() => ({
   container: {
@@ -52,8 +53,8 @@ const useStyles = createStyles(() => ({
 const About: React.FC = () => {
   const { classes, cx } = useStyles();
 
-  const diff = (new Date().getTime() - new Date(645249553000).getTime());
-  const yearsOld = Math.floor(diff / (1000 * 60 * 60 * 24 * 365))
+  const ageDifDate = new Date(Date.now() - birthday);
+  const age =  Math.abs(ageDifDate.getUTCFullYear() - 1970);
 
   return <Container className={classes.container}>
     <Title size={43} color="black">$Whoami</Title>
@@ -78,7 +79,7 @@ const About: React.FC = () => {
       long for a website. Thus opted for <strong>Marco Lotz</strong>.
     </Text>
     <Text className={classes.text}>
-      I am a {yearsOld} year-old Electronics and Telecommunications Engineer and I’ve been working as a Vice
+      I am a {age} year-old Electronics and Telecommunications Engineer and I’ve been working as a Vice
       President for Swiss Re. I lead a globally distributed team composed of a mosaic of backgrounds
       (from PhDs in Mathematics to Apache open source contributors) driving Stargate Platform.
     </Text>
