@@ -1,5 +1,5 @@
 const populateData = require('../assets/populateData.json');
-const serviceAccount = require('../assets/credentials.json');
+const serviceAccount = JSON.parse(process.env.CREDENTIALS || '');
 const admin = require('firebase-admin');
 
 if (!admin.apps.length) {
