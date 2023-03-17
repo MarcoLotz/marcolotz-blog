@@ -6,7 +6,7 @@ import { PostData, PostsResponse } from './api/posts'
 import api from '@/services/api'
 import { IconSearch } from '@tabler/icons-react'
 import { debounce } from 'lodash';
-import getPosts from '@/services/getPosts'
+import {getPostsInPage, getTotalPages} from '@/services/getPosts'
 
 const getPagedPosts = async (pageIndex: number, searchText: string = ''): Promise<PostsResponse> => {
   const { data: data } = await api.get<PostsResponse>('/api/posts', {
@@ -20,7 +20,9 @@ const getPagedPosts = async (pageIndex: number, searchText: string = ''): Promis
 };
 
 export async function getStaticProps() {
-  const data = await getPosts(1, 3);
+  const [ first_page, total_pages ] = await Promise.all([getPostsInPage(1), getTotalPages()]);
+  // TODO: segregation of concerns should be used here...
+  const data = {...first_page, ...total_pages};
 
   return {
     props: {

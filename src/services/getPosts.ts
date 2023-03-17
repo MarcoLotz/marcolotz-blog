@@ -1,5 +1,9 @@
 import firebaseClient from "./firebaseClient";
-import { Timestamp } from 'firebase/firestore'
+import {Timestamp} from 'firebase/firestore'
+
+const maxSearchLimit = 20
+// No need to have the user changing the page size here.
+const pageSize = 3
 
 type PostData = {
   id: string;
@@ -10,31 +14,30 @@ type PostData = {
   createdAt: Timestamp;
 }
 
-export default async function getPosts(pageIndex: number, pageSize: number, searchText = '') {
-  let query = {} as any;
+export async function getTotalPages() {
 
-  if (searchText) {
-    const searchItems = searchText
-      .trim()
-      .toUpperCase()
-      .split(' ');
+  // DB side speed up: createdAt indexed descending
+  const {count} = (await
+    firebaseClient
+    .collection('posts')
+    .count()
+    .get())
+  .data();
 
-    searchItems.forEach(search => {
-      query = firebaseClient.collection('posts')
-        .where('search', 'array-contains', search);
-    });
+  return {
+    totalPages: Math.ceil(count / pageSize)
+  };
+}
 
-  } else {
-    query = firebaseClient.collection('posts')
-      .orderBy('createdAt', 'desc');
-  }
+export async function getPostsInPage(pageIndex: number) {
 
-  const { count } = (await query.count().get()).data();
+  // DB side speed up: createdAt indexed descending
+  let query = firebaseClient.collection('posts').orderBy('createdAt', 'desc');
 
   const data = await query
-    .offset((pageIndex - 1) * pageSize)
-    .limit(pageSize)
-    .get();
+  .offset((pageIndex - 1) * pageSize)
+  .limit(pageSize)
+  .get();
 
   const posts = data.docs.map((doc: any) => {
     const postData = doc.data() as PostData;
@@ -49,7 +52,36 @@ export default async function getPosts(pageIndex: number, pageSize: number, sear
   return {
     items: posts,
     pageIndex,
-    count: count,
-    totalPages: Math.ceil(count / pageSize)
+    count: posts.length,
+  };
+}
+
+export async function getPostsWithSearchText(searchText: string) {
+  var query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = firebaseClient.collection('posts');
+
+  const searchItems = searchText
+  .trim()
+  .toUpperCase()
+  .split(' ');
+
+  searchItems.forEach(searchItem => {
+    query = query.where('search', 'array-contains', searchItem);
+  });
+
+  const data = await query.limit(maxSearchLimit).get();
+
+  const posts = data.docs
+  .map((doc: any) => {
+    const postData = doc.data() as PostData;
+    return {
+      ...postData,
+      id: doc.id,
+      createdAt: doc.create
+    };
+  });
+
+  return {
+    items: posts,
+    count: posts.length,
   };
 }

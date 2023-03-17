@@ -1,4 +1,4 @@
-import getPosts from '@/services/getPosts';
+import { getPostsInPage, getPostsWithSearchText} from '@/services/getPosts';
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 export type PostData = {
@@ -10,6 +10,8 @@ export type PostData = {
   createdAt: Date;
 }
 
+// Note: not all fields are mandatory.
+// TODO: split into three interfaces?
 export interface PostsResponse {
   items: PostData[];
   pageIndex: number;
@@ -22,11 +24,16 @@ export default async function handler(
   res: NextApiResponse<PostsResponse>
 ) {
   const { pageIndex, searchText } = req.query;
+  let posts = {} as any;
+  // if there's search text do this
+  if (searchText && typeof searchText == 'string')
+  {
+    posts = await getPostsWithSearchText(searchText)
+  }
+  else
+  {
+    posts = await getPostsInPage(pageIndex ? Number.parseInt(pageIndex as string) : 1)
+  }
 
-  const response = await getPosts(
-    pageIndex ? Number.parseInt(pageIndex as string) : 1,
-    3,
-    searchText as string);
-
-  res.status(200).json(response);
+  res.status(200).json(posts);
 }
