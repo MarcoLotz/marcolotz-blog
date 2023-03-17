@@ -57,7 +57,7 @@ export default function Home({ data }: { data: PostsResponse }) {
       getPagedPosts(pageData.pageIndex, searchText)
         .then(res => {
           setPosts(res.items);
-          setPageData(prev => ({ ...prev, totalPages: res.totalPages }));
+          setPageData(prev => ({ ...prev, totalPages: data.totalPages}));
         });
   }, [pageData.pageIndex, searchText]);
 
