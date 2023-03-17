@@ -53,6 +53,7 @@ const useStyles = createStyles(() => ({
 const About: React.FC = () => {
   const { classes, cx } = useStyles();
 
+  // @ts-ignore
   const ageDifDate = new Date(Date.now() - birthday);
   const age =  Math.abs(ageDifDate.getUTCFullYear() - 1970);
 
