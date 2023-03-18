@@ -22,12 +22,18 @@ const useStyles = createStyles(() => ({
     border: "0.0625rem solid #ced4da"
   },
 
+  badgeContainer: {
+    '@media screen and (max-width: 600px)': {
+      flexDirection: 'column'
+    }
+  },
+
   badge: {
     '.mantine-Badge-inner': {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: '0.5rem'
+      gap: '0.5rem',
     }
   },
   htmlProvider: {
@@ -51,7 +57,7 @@ const Post: React.FC<PostData> = ({ title, author, body, category, createdAt }) 
 
   return <Container className={classes.container}>
     <Title mb="1.0rem">{title}</Title>
-    <Flex gap='0.5rem' mb="md">
+    <Flex className={classes.badgeContainer} gap='0.5rem' mb="md">
       <Badge className={classes.badge} color="lime" size="lg" radius="sm" variant="outline">
         <IconCalendarTime size={16} />
         <Text mt={2.3}>{dateFormatter.format(new Date(createdAt))}</Text>
