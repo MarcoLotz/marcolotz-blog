@@ -1,9 +1,9 @@
 import firebaseClient from "./firebaseClient";
-import { Timestamp } from 'firebase/firestore'
-import { handleCache } from "./cacheHandler";
+import {Timestamp} from 'firebase/firestore'
+import {handleCache} from "./cacheHandler";
 
-// in milliseconds
-const defaultExpiracyTime = 1000 * 60 * 60 * 24;
+
+const defaultCacheEvictionTime = 1000 * 60 * 10;
 const maxSearchLimit = 20
 // No need to have the user changing the page size here.
 const pageSize = 3
@@ -18,16 +18,16 @@ type PostData = {
 }
 
 
-export async function getTotalPages() {
+export async function getTotalPagesCached() {
   return await handleCache(
     'total-pages',
-    defaultExpiracyTime,
+    defaultCacheEvictionTime,
     async () => await requestTotalPages());
 }
 
 async function requestTotalPages() {
   // DB side speed up: createdAt indexed descending
-  const { count } = (await
+  const {count} = (await
     firebaseClient
       .collection('posts')
       .count()
@@ -45,13 +45,14 @@ const formatTimestampToISO = (timestamp: Timestamp) =>
 export async function getPostsInPage(pageIndex: number) {
   return await handleCache(
     `posts-${pageIndex}`,
-    defaultExpiracyTime,
+    defaultCacheEvictionTime,
     async () => await requestNewPagedPosts(pageIndex));
 }
 
 async function requestNewPagedPosts(pageIndex: number) {
   // DB side speed up: createdAt indexed descending
-  let query = firebaseClient.collection('posts').orderBy('createdAt', 'desc');
+  const query = firebaseClient.collection('posts').orderBy('createdAt', 'desc');
+  const totalNumberOfPages = (await getTotalPagesCached()).totalPages
 
   const data = await query
     .offset((pageIndex - 1) * pageSize)
@@ -72,11 +73,13 @@ async function requestNewPagedPosts(pageIndex: number) {
     items: posts,
     pageIndex,
     count: posts.length,
+    totalNumberOfPages: totalNumberOfPages
   };
 }
 
+
 export async function getPostsWithSearchText(searchText: string) {
-  var query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = firebaseClient.collection('posts');
+  let query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = firebaseClient.collection('posts');
 
   const searchItems = searchText
     .trim()
@@ -99,6 +102,8 @@ export async function getPostsWithSearchText(searchText: string) {
 
   return {
     items: posts,
+    pageIndex: 1,
     count: posts.length,
+    totalNumberOfPages: 1
   };
 }

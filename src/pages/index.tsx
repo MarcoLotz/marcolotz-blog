@@ -6,7 +6,7 @@ import { PostData, PostsResponse } from './api/posts'
 import api from '@/services/api'
 import { IconSearch } from '@tabler/icons-react'
 import { debounce } from 'lodash';
-import { getPostsInPage, getTotalPages } from '@/services/getPosts'
+import { getPostsInPage } from '@/services/getPosts'
 
 const getPagedPosts = async (pageIndex: number, searchText: string = ''): Promise<PostsResponse> => {
   const { data: data } = await api.get<PostsResponse>('/api/posts', {
@@ -19,10 +19,10 @@ const getPagedPosts = async (pageIndex: number, searchText: string = ''): Promis
   return data;
 };
 
+// This runs on build time
 export async function getStaticProps() {
-  const [first_page, total_pages] = await Promise.all([getPostsInPage(1), getTotalPages()]);
-  // TODO: segregation of concerns should be used here...
-  const data = { ...first_page, ...total_pages };
+  const first_page = await getPostsInPage(1);
+  const data = { ...first_page };
 
   return {
     props: {
@@ -33,7 +33,7 @@ export async function getStaticProps() {
 
 interface PageData {
   pageIndex: number;
-  totalPages: number;
+  totalNumberOfPages: number;
 }
 
 type PagedPostsResponse = PageData & PostsResponse;
@@ -43,7 +43,7 @@ export default function Home({ data }: { data: PagedPostsResponse }) {
   const [searchText, setSearchText] = useState('');
   const [pageData, setPageData] = useState<PageData>({
     pageIndex: 1,
-    totalPages: data.totalPages,
+    totalNumberOfPages: data.totalNumberOfPages,
   });
 
   const debouncedSetSearchText = debounce((text: string) => {
@@ -53,13 +53,13 @@ export default function Home({ data }: { data: PagedPostsResponse }) {
   useEffect(() => {
     if (pageData.pageIndex === 1 && !searchText) {
       setPosts(data.items);
-      setPageData(prev => ({ ...prev, totalPages: data.totalPages }))
+      setPageData(prev => ({ ...prev, totalPages: data.totalNumberOfPages }))
     }
     else
       getPagedPosts(pageData.pageIndex, searchText)
         .then(res => {
           setPosts(res.items);
-          setPageData(prev => ({ ...prev, totalPages: data.totalPages }));
+          setPageData(prev => ({ ...prev, totalPages: data.totalNumberOfPages }));
         });
   }, [pageData.pageIndex, searchText]);
 
@@ -67,7 +67,7 @@ export default function Home({ data }: { data: PagedPostsResponse }) {
     if (pageData.pageIndex !== 1)
       setPageData({ ...pageData, pageIndex: 1 })
 
-  }, [pageData.totalPages])
+  }, [pageData.totalNumberOfPages])
 
   return (
     <>
@@ -85,7 +85,7 @@ export default function Home({ data }: { data: PagedPostsResponse }) {
           mt="0"
           value={pageData.pageIndex}
           onChange={page => setPageData(prev => ({ ...prev, pageIndex: page }))}
-          total={pageData.totalPages}
+          total={pageData.totalNumberOfPages}
         />
         <Input
           m="lg"
@@ -110,7 +110,7 @@ export default function Home({ data }: { data: PagedPostsResponse }) {
           mt="0"
           value={pageData.pageIndex}
           onChange={page => setPageData(prev => ({ ...prev, pageIndex: page }))}
-          total={pageData.totalPages}
+          total={pageData.totalNumberOfPages}
         />
       </Container>
     </>

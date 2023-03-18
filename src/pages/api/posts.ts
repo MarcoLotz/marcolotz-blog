@@ -14,6 +14,7 @@ export interface PostsResponse {
   items: PostData[];
   pageIndex?: number;
   count: number;
+  totalNumberOfPages: number;
 }
 
 export default async function handler(
