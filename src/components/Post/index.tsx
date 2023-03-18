@@ -10,7 +10,7 @@ interface PostData {
   author: string;
   body: string;
   category: string;
-  createdAt: Date;
+  createdAt: string;
 }
 
 const useStyles = createStyles(() => ({

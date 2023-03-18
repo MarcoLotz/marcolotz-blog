@@ -6,7 +6,7 @@ import { PostData, PostsResponse } from './api/posts'
 import api from '@/services/api'
 import { IconSearch } from '@tabler/icons-react'
 import { debounce } from 'lodash';
-import getPosts from '@/services/getPosts'
+import { getPostsInPage, getTotalPages } from '@/services/getPosts'
 
 const getPagedPosts = async (pageIndex: number, searchText: string = ''): Promise<PostsResponse> => {
   const { data: data } = await api.get<PostsResponse>('/api/posts', {
@@ -20,7 +20,9 @@ const getPagedPosts = async (pageIndex: number, searchText: string = ''): Promis
 };
 
 export async function getStaticProps() {
-  const data = await getPosts(1, 3);
+  const [first_page, total_pages] = await Promise.all([getPostsInPage(1), getTotalPages()]);
+  // TODO: segregation of concerns should be used here...
+  const data = { ...first_page, ...total_pages };
 
   return {
     props: {
@@ -34,7 +36,9 @@ interface PageData {
   totalPages: number;
 }
 
-export default function Home({ data }: { data: PostsResponse }) {
+type PagedPostsResponse = PageData & PostsResponse;
+
+export default function Home({ data }: { data: PagedPostsResponse }) {
   const [posts, setPosts] = useState<PostData[]>(data.items);
   const [searchText, setSearchText] = useState('');
   const [pageData, setPageData] = useState<PageData>({
@@ -55,7 +59,7 @@ export default function Home({ data }: { data: PostsResponse }) {
       getPagedPosts(pageData.pageIndex, searchText)
         .then(res => {
           setPosts(res.items);
-          setPageData(prev => ({ ...prev, totalPages: res.totalPages }));
+          setPageData(prev => ({ ...prev, totalPages: data.totalPages }));
         });
   }, [pageData.pageIndex, searchText]);
 
