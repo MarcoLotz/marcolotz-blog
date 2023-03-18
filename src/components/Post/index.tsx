@@ -1,16 +1,19 @@
-import { Badge, Container, createStyles, Flex, Text, Title, TypographyStylesProvider } from '@mantine/core';
-import { IconCalendarTime, IconFolder, IconUser } from '@tabler/icons-react';
+import { Badge, Button, Container, createStyles, Flex, Text, Title, TypographyStylesProvider } from '@mantine/core';
+import { IconCalendarTime, IconFolder, IconShare, IconUser } from '@tabler/icons-react';
 import sanitizeHtml from 'sanitize-html';
+import { toast } from 'react-toastify';
 
 
-import React from 'react';
+import React, { useCallback } from 'react';
 
 interface PostData {
+  id: string;
   title: string;
   author: string;
   body: string;
   category: string;
   createdAt: string;
+  pageIndex?: number; // not static on search
 }
 
 const useStyles = createStyles(() => ({
@@ -52,10 +55,26 @@ const dateFormatter = new Intl.DateTimeFormat(undefined, {
   dateStyle: 'long'
 });
 
-const Post: React.FC<PostData> = ({ title, author, body, category, createdAt }) => {
+const Post: React.FC<PostData> = ({ id, title, author, body, category, createdAt, pageIndex }) => {
   const { classes } = useStyles();
 
-  return <Container className={classes.container}>
+  const copyLink = useCallback(() => {
+    const link = `https://www.marcolotz.com/?pageIndex=${pageIndex}&postId=${id}`
+    navigator.clipboard.writeText(link).then(_ => {
+      toast.info('Url copied to clipboard!', {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    });
+  }, [pageIndex, id]);
+
+  return <Container id={id} className={classes.container}>
     <Title mb="1.0rem">{title}</Title>
     <Flex className={classes.badgeContainer} gap='0.5rem' mb="md">
       <Badge className={classes.badge} color="lime" size="lg" radius="sm" variant="outline">
@@ -70,6 +89,18 @@ const Post: React.FC<PostData> = ({ title, author, body, category, createdAt }) 
         <IconFolder size={16} />
         <Text mt={2.3}>{category}</Text>
       </Badge>
+
+      {!!pageIndex && <Button
+        onClick={() => copyLink()}
+        h={26}
+        w={30}
+        p={6}
+        variant="outline"
+        color="lime"
+        radius="sm"
+        compact>
+        <IconShare />
+      </Button>}
     </Flex>
 
     <TypographyStylesProvider className={classes.htmlProvider}>
