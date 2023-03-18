@@ -52,7 +52,7 @@ export async function getPostsInPage(pageIndex: number) {
 async function requestNewPagedPosts(pageIndex: number) {
   // DB side speed up: createdAt indexed descending
   const query = firebaseClient.collection('posts').orderBy('createdAt', 'desc');
-  const totalNumberOfPages = await getTotalPagesCached();
+  const totalNumberOfPages = (await getTotalPagesCached()).totalPages
 
   const data = await query
     .offset((pageIndex - 1) * pageSize)
