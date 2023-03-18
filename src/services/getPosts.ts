@@ -29,6 +29,9 @@ export async function getTotalPages() {
   };
 }
 
+const formatTimestampToISO = (timestamp: Timestamp) =>
+  new Date(timestamp.seconds * 1000).toISOString();
+
 export async function getPostsInPage(pageIndex: number) {
 
   // DB side speed up: createdAt indexed descending
@@ -45,7 +48,7 @@ export async function getPostsInPage(pageIndex: number) {
     return {
       ...postData,
       id: doc.id,
-      createdAt: new Date(postData.createdAt.seconds * 1000).toISOString()
+      createdAt: formatTimestampToISO(postData.createdAt)
     };
   });
 
@@ -64,9 +67,7 @@ export async function getPostsWithSearchText(searchText: string) {
     .toUpperCase()
     .split(' ');
 
-  searchItems.forEach(searchItem => {
-    query = query.where('search', 'array-contains', searchItem);
-  });
+  query = query.where('search', 'array-contains-any', searchItems);
 
   const data = await query.limit(maxSearchLimit).get();
 
@@ -75,8 +76,8 @@ export async function getPostsWithSearchText(searchText: string) {
       const postData = doc.data() as PostData;
       return {
         ...postData,
-        id: doc.id,
-        createdAt: doc.createdAt
+        id: doc.id as string,
+        createdAt: formatTimestampToISO(postData.createdAt)
       };
     });
 

@@ -36,7 +36,9 @@ interface PageData {
   totalPages: number;
 }
 
-export default function Home({ data }: { data: PostsResponse }) {
+type PagedPostsResponse = PageData & PostsResponse;
+
+export default function Home({ data }: { data: PagedPostsResponse }) {
   const [posts, setPosts] = useState<PostData[]>(data.items);
   const [searchText, setSearchText] = useState('');
   const [pageData, setPageData] = useState<PageData>({
