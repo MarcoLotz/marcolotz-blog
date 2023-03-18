@@ -3,7 +3,7 @@ import {Timestamp} from 'firebase/firestore'
 import {handleCache} from "./cacheHandler";
 
 
-const defaultCacheEvictionTime = 1000 * 60 * 60 * 24;
+const defaultCacheEvictionTime = 1000 * 60 * 10;
 const maxSearchLimit = 20
 // No need to have the user changing the page size here.
 const pageSize = 3
