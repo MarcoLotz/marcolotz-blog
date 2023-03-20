@@ -28,6 +28,6 @@ populateData.forEach(data => {
 
 usersCollection.add({
   name: 'Marco Aurélio Lotz',
-  passwordHash: '$2b$10$oMk5U/t8295OIUN2Y4IJku/EQHmp48UvFmnwO/9Q3p8afqhvkXGG.',
+  passwordHash: '$2b$12$LS4KyNCoMmONQRx8D9ZUEethR0GcrT9YZvEtLTLAMt7jzmQTBudfK',
   username: 'marcolotz'
 });

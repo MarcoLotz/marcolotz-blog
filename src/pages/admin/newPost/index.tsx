@@ -1,10 +1,18 @@
 import Editor from '@/components/Editor';
+import { useAuth } from '@/hooks/useAuth';
 import { Button, Container, Flex, Text, TextInput } from '@mantine/core';
-import { IconDeviceFloppy, IconHomeCancel, IconX } from '@tabler/icons-react';
+import { IconDeviceFloppy, IconX } from '@tabler/icons-react';
+import Router from 'next/router';
 import React, { useState } from 'react';
 
 const NewPost: React.FC = () => {
   const [body, setBody] = useState('');
+  const { authData } = useAuth();
+
+  if (!authData.signedIn) {
+    Router.push('/admin');
+    return null;
+  }
 
   return <Container>
     <Flex mb="2rem" justify="space-between">

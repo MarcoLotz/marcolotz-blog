@@ -11,9 +11,13 @@ import {
   Title,
   Transition,
   Paper,
+  Avatar,
+  UnstyledButton,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import Router from 'next/router';
+import { useAuth } from '@/hooks/useAuth';
+import { IconChevronDown, IconFilePlus, IconLogout } from '@tabler/icons-react';
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -110,15 +114,12 @@ const useStyles = createStyles((theme) => ({
   }
 }));
 
-interface HeaderTabsProps {
-  user: { name: string; image: string };
-}
-
-const Header = ({ user }: HeaderTabsProps) => {
+const Header = () => {
   const { classes, cx } = useStyles();
   const [opened, { toggle }] = useDisclosure(false);
   const [userMenuOpened, setUserMenuOpened] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('Home');
+  const { authData, signOut } = useAuth();
 
   const handlePush = (route: string) => {
     Router.push(route);
@@ -154,7 +155,6 @@ const Header = ({ user }: HeaderTabsProps) => {
           </div>
 
           <Burger opened={opened} onClick={toggle} className={classes.burger} size="sm" />
-
           <Menu
             width={260}
             position="bottom-end"
@@ -162,15 +162,18 @@ const Header = ({ user }: HeaderTabsProps) => {
             onClose={() => setUserMenuOpened(false)}
             onOpen={() => setUserMenuOpened(true)}
             withinPortal
+            styles={{}}
           >
-            {/* <Menu.Target>
+
+            <Menu.Target >
               <UnstyledButton
+                sx={{ display: authData.signedIn ? 'box' : 'none' }}
                 className={cx(classes.user, { [classes.userActive]: userMenuOpened })}
               >
                 <Group spacing={7}>
-                  <Avatar src={user.image} alt={user.name} radius="xl" size={20} />
+                  <Avatar src="https://github.com/marcolotz.png" alt={authData.name} radius="xl" size={20} />
                   <Text weight={500} size="sm" sx={{ lineHeight: 1 }} mr={3}>
-                    {user.name}
+                    {authData.name}
                   </Text>
                   <IconChevronDown size={rem(12)} stroke={1.5} />
                 </Group>
@@ -184,30 +187,32 @@ const Header = ({ user }: HeaderTabsProps) => {
                 New Post
               </Menu.Item>
 
-              <Menu.Item icon={<IconLogout size="1.3rem" stroke={1.5} />}>Logout</Menu.Item>
+              <Menu.Item
+                onClick={() => signOut()}
+                icon={<IconLogout size="1.3rem" stroke={1.5} />}>
+                Logout
+              </Menu.Item>
 
               <Menu.Divider />
 
-            </Menu.Dropdown> */}
+            </Menu.Dropdown>
           </Menu>
         </Group>
       </Container>
       <Container>
-        {
-          <Tabs
-            defaultValue="Home"
-            variant="outline"
-            classNames={{
-              root: classes.tabs,
-              tabsList: classes.tabsList,
-              tab: classes.tab,
-            }}
-            value={activeTab}
-            onTabChange={(value) => value !== 'Github' && setActiveTab(value || 'Home')}
-          >
-            {tabs}
-          </Tabs>
-        }
+        <Tabs
+          defaultValue="Home"
+          variant="outline"
+          classNames={{
+            root: classes.tabs,
+            tabsList: classes.tabsList,
+            tab: classes.tab,
+          }}
+          value={activeTab}
+          onTabChange={(value) => value !== 'Github' && setActiveTab(value || 'Home')}
+        >
+          {tabs}
+        </Tabs>
       </Container>
       <Transition transition="pop-top-right" duration={200} mounted={opened}>
         {(styles) => (

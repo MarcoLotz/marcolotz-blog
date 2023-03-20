@@ -1,7 +1,8 @@
-import api from '@/services/api';
+import { useCallback, useEffect } from 'react';
 import { TextInput, Button, Group, Box, createStyles, Container, Title } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useCallback } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import Router from 'next/router';
 
 const useStyles = createStyles(() => ({
   container: {
@@ -21,6 +22,7 @@ interface Request {
 
 const SignIn: React.FC = () => {
   const { classes } = useStyles();
+  const { authData, signIn } = useAuth();
 
   const form = useForm({
     initialValues: {
@@ -35,8 +37,19 @@ const SignIn: React.FC = () => {
   });
 
   const hadleSignIn = useCallback(async (request: Request) => {
-    const { data } = await api.post('api/signIn', request);
-    console.log(data);
+    try {
+      await signIn(request);
+      Router.push('/');
+    } catch {
+      form.setFieldError('password', 'Wrong username/password');
+    }
+  }, []);
+
+
+  useEffect(() => {
+    if (!!authData.signedIn) {
+      Router.push('/');
+    };
   }, []);
 
   return (
