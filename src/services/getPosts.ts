@@ -1,6 +1,6 @@
 import firebaseClient from "./firebaseClient";
-import {Timestamp} from 'firebase/firestore'
-import {handleCache} from "./cacheHandler";
+import { Timestamp } from 'firebase/firestore'
+import { handleCache } from "./cacheHandler";
 
 
 const defaultCacheEvictionTime = 1000 * 60 * 10;
@@ -27,7 +27,7 @@ export async function getTotalPagesCached() {
 
 async function requestTotalPages() {
   // DB side speed up: createdAt indexed descending
-  const {count} = (await
+  const { count } = (await
     firebaseClient
       .collection('posts')
       .count()
