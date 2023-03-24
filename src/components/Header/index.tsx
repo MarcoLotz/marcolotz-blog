@@ -13,6 +13,7 @@ import {
   Paper,
   Avatar,
   UnstyledButton,
+  Button,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import Router from 'next/router';
@@ -162,7 +163,6 @@ const Header = () => {
             onClose={() => setUserMenuOpened(false)}
             onOpen={() => setUserMenuOpened(true)}
             withinPortal
-            styles={{}}
           >
 
             <Menu.Target >
@@ -197,6 +197,14 @@ const Header = () => {
 
             </Menu.Dropdown>
           </Menu>
+
+          {!authData.signedIn &&
+            <Button
+              variant="outline"
+              color='green'
+              onClick={() => Router.push('/admin')}>
+              Sign In
+            </Button>}
         </Group>
       </Container>
       <Container>
