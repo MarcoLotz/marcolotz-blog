@@ -117,9 +117,17 @@ export default function Home({ data }: { data: PagedPostsResponse }) {
       <Head>
         <title>Marco Aurélio Lotz | Home</title>
       </Head>
-      <Container>
+      <Container sx={{
+        '.mantine-Pagination-control[data-active]': {
+          background: '#79b458',
+          ':hover': {
+            background: '#5e8b44',
+          }
+        }
+      }}>
 
         <Pagination
+          color="green"
           m="lg"
           ml="0"
           mt="0"
@@ -151,6 +159,7 @@ export default function Home({ data }: { data: PagedPostsResponse }) {
         </Skeleton>
 
         <Pagination
+          color="green"
           m="lg"
           ml="0"
           mt="0"
