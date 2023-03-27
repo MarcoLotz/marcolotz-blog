@@ -17,12 +17,12 @@ export default async function handler(
     const [_, token] = req.headers.authorization?.split(' ') as string[];
     author = validateJwt(token).name
   } catch {
-    res.status(401);
+    res.status(401).json({} as PostData);
     return;
   }
 
   if (req.method !== 'POST') {
-    res.status(405);
+    res.status(405).json({} as PostData);
     return;
   }
 

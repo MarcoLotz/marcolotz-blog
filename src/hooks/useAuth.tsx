@@ -51,7 +51,7 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
     api.defaults.headers['Authorization'] = `Bearer ${data.token}`;
 
     setData(authData);
-  }, [storage]);
+  }, [storage, api, storage]);
 
   useEffect(() => {
     setStorage(localStorage);
@@ -62,10 +62,12 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
       const authData = storage.getItem('auth');
 
       if (authData) {
-        setData(JSON.parse(authData))
+        const parsedData = JSON.parse(authData);
+        api.defaults.headers['Authorization'] = `Bearer ${parsedData.token}`;
+        setData(parsedData)
       }
     }
-  }, [storage])
+  }, [storage, api])
 
   return (
     <AuthContext.Provider value={{ authData: data, signOut, signIn }}>

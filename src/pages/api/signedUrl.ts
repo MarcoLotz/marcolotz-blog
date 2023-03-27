@@ -14,14 +14,14 @@ export default async function handler(
     const [_, token] = req.headers.authorization?.split(' ') as string[];
     validateJwt(token);
   } catch {
-    res.status(401);
+    res.status(401).json({} as SignedUrlResponse);
     return;
   }
 
   const path = req.query.path as string;
 
   if (!path) {
-    res.status(400);
+    res.status(400).json({} as SignedUrlResponse);
     return;
   }
 

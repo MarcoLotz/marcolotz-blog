@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { RichTextEditor, Link } from '@mantine/tiptap';
 import { useEditor } from '@tiptap/react';
 import Highlight from '@tiptap/extension-highlight';
@@ -9,16 +9,18 @@ import Superscript from '@tiptap/extension-superscript';
 import { Color } from '@tiptap/extension-color';
 import SubScript from '@tiptap/extension-subscript';
 import TextStyle from '@tiptap/extension-text-style';
+import Image from '@tiptap/extension-image';
 
 import { Container } from '@mantine/core';
-import { IconColorPicker } from '@tabler/icons-react';
+import { IconPhoto, IconColorPicker } from '@tabler/icons-react';
 
 interface EditorProps {
   onChange: (value: string) => void;
+  onImageUpload: (file: File) => Promise<string>;
   value: string | undefined;
 }
 
-const Editor: React.FC<EditorProps> = ({ onChange, value }) => {
+const Editor: React.FC<EditorProps> = ({ onChange, onImageUpload, value }) => {
 
   const editor = useEditor({
     extensions: [
@@ -30,6 +32,7 @@ const Editor: React.FC<EditorProps> = ({ onChange, value }) => {
       Highlight,
       Color,
       TextStyle,
+      Image,
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
     ],
     content: value,
@@ -37,6 +40,14 @@ const Editor: React.FC<EditorProps> = ({ onChange, value }) => {
       onChange(editor?.getHTML());
     }
   });
+
+  const addImage = useCallback(async (file: File) => {
+    if (!editor)
+      return;
+
+    const url = await onImageUpload(file);
+    editor.chain().focus().setImage({ src: url }).run()
+  }, [editor]);
 
   return (
     <Container>
@@ -69,6 +80,24 @@ const Editor: React.FC<EditorProps> = ({ onChange, value }) => {
           </RichTextEditor.ControlsGroup>
 
           <RichTextEditor.ControlsGroup>
+            <button type='button' style={{
+              border: '0.0625rem solid #ced4da',
+              borderRight: '0',
+              borderRadius: '0.25rem 0 0 0.25rem',
+              minHeight: '1.625rem',
+              width: '1.625rem',
+              background: 'transparent',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+              onClick={() => {
+                document.getElementById('uploader')?.click();
+              }}
+            >
+              <IconPhoto size={15} />
+            </button>
             <RichTextEditor.Link />
             <RichTextEditor.Unlink />
           </RichTextEditor.ControlsGroup>
@@ -117,6 +146,13 @@ const Editor: React.FC<EditorProps> = ({ onChange, value }) => {
           }
         }} mih="300px" />
       </RichTextEditor>
+      <input style={{
+        display: 'none'
+      }}
+        type="file"
+        id="uploader"
+        onChange={({ target }) => target.files && addImage(target.files[0])}
+      />
     </Container>
   );
 }
