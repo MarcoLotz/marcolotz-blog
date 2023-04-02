@@ -46,12 +46,21 @@ const Editor: React.FC<EditorProps> = ({ onChange, onImageUpload, value }) => {
       return;
 
     const url = await onImageUpload(file);
-    editor.chain().focus().setImage({ src: url }).run()
+    editor.chain().focus().setImage({ src: url, }).run()
   }, [editor]);
 
   return (
     <Container>
-      <RichTextEditor editor={editor}>
+      <RichTextEditor
+        sx={{
+          'img': {
+            'maxHeight': '500px',
+            display: 'block',
+            marginLeft: 'auto',
+            marginRight: 'auto'
+          }
+        }}
+        editor={editor}>
         <RichTextEditor.Toolbar sticky stickyOffset={60}>
           <RichTextEditor.ControlsGroup>
             <RichTextEditor.Bold />

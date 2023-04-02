@@ -4,7 +4,6 @@ import api from '@/services/api';
 import { Button, Container, Flex, MultiSelect, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconDeviceFloppy, IconX } from '@tabler/icons-react';
-import axios from 'axios';
 import { useRouter } from 'next/router';
 import React, { useCallback, useEffect } from 'react';
 
@@ -14,12 +13,74 @@ interface Request {
   body: string;
 }
 
+const dataURItoBlob = (dataURI: string) => {
+  const byteString = atob(dataURI.split(',')[1]);
+  const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+
+  for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+  }
+
+  const blob = new Blob([ab], {type: mimeString});
+  return blob;
+}
+
+const resize = (file: File, max_width: number, max_height: number): Promise<Blob> => {
+  return new Promise(resolve => {
+    let fileLoader = new FileReader(),
+    context: CanvasRenderingContext2D | null = null,
+    imageObj = new Image(),
+    blob = null;
+
+    if (file.type.match('image.*')) {
+        fileLoader.readAsDataURL(file);
+    } else {
+        alert('File is not an image');
+    }
+    fileLoader.onload = function() {
+        const data = this.result;
+        imageObj.src = data as string;
+    };
+
+    imageObj.onload = () => {
+
+        if(imageObj.width == 0 || imageObj.height == 0){
+            alert('Image is empty');
+        } else {
+            const heightProportion = max_height / imageObj.height;
+            const resizedWidth = imageObj.width * heightProportion;
+            const resizedHeight = imageObj.height * heightProportion;
+            const canvas = document.createElement('canvas');
+            canvas.id     = "hiddenCanvas";
+            canvas.width  = resizedWidth;
+            canvas.height = resizedHeight;
+            canvas.style.visibility   = "hidden";
+            document.body.appendChild(canvas);
+            context = canvas.getContext('2d');
+
+            context?.clearRect(0, 0, resizedWidth, resizedHeight);
+            context?.drawImage(imageObj, 0, 0, imageObj.width, imageObj.height, 0, 0, resizedWidth, resizedHeight);
+
+            blob = dataURItoBlob(canvas.toDataURL('image/jpeg'));
+
+            resolve(blob);
+        }
+    };
+
+    imageObj.onerror = () => {
+        alert("An error occured while loading image.");
+    };
+  })
+}
+
 const NewPost: React.FC = () => {
   const form = useForm({
     initialValues: {
       title: '',
       category: [],
-      body: '<h1>Type</h1>'
+      body: ''
     },
 
     validate: {
@@ -31,35 +92,29 @@ const NewPost: React.FC = () => {
   const { authData } = useAuth();
 
   const handleSubmit = useCallback(async (data: Request) => {
-    await api.post('/api/newPost', data)
+    await api.post('/api/newPost', {
+      ...data,
+      category: data.category.join(', ')
+    })
     router.push('/');
   }, []);
 
   const handleImageUpload = async (file: File) => {
-    /*const { data } = await api.get('/api/signedUrl', {
-      params: {
-        path: `${new Date().toISOString()}/${file.name}`
-      }
-    });
-    await uploadByUrl(data.url, file);
-
-    return (data.url as string).split('?')[0];*/
-
-    return URL.createObjectURL(file);
+    const resizedFile = await resize(file, 500, 500);
+    return await getBase64FromFile(resizedFile);
   };
 
-  const uploadByUrl = useCallback(async (url: string, file: File) => {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    await axios.post(url, '', {
-      headers: {
-        'Content-Type': file.type,
-        'x-goog-resumable': 'start'
+  const getBase64FromFile = useCallback(async (file: File | Blob): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = () => {
+        const base64data = reader.result;
+        resolve(base64data as string);
       }
     });
-    await axios.put(url, formData);
   }, []);
+
 
   useEffect(() => {
     if (!authData.signedIn)

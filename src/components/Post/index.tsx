@@ -22,7 +22,7 @@ const useStyles = createStyles(() => ({
     borderRadius: "0.5rem",
     padding: "2rem",
     marginBottom: "1.5rem",
-    border: "0.0625rem solid #ced4da"
+    border: "0.0625rem solid #ced4da",
   },
 
   badgeContainer: {
@@ -42,7 +42,11 @@ const useStyles = createStyles(() => ({
   htmlProvider: {
     'figure, img': {
       textAlign: 'center',
-      margin: '0 auto'
+      margin: '0 auto',
+      'maxHeight': '500px',
+      display: 'block',
+      marginLeft: 'auto',
+      marginRight: 'auto'
     },
     "pre": {
       backgroundColor: "#e9ebe8"
@@ -107,7 +111,13 @@ const Post: React.FC<PostData> = ({ id, title, author, body, category, createdAt
       <div
         dangerouslySetInnerHTML={{
           __html: sanitizeHtml(body, {
-            allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img'])
+            allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img']),
+            allowedSchemes: sanitizeHtml.defaults.allowedSchemes.concat(['data']),
+            allowedAttributes: {
+              ...sanitizeHtml.defaults.allowedAttributes,
+              span: [ 'style'],
+              p: [ 'style']
+            },
           })
         }}
       />

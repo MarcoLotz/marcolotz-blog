@@ -37,3 +37,11 @@ export default async function handler(
     createdAt: post.createdAt.toISOString()
   });
 }
+
+export const config = {
+  api: {
+      bodyParser: {
+          sizeLimit: '4mb' // Set desired value here
+      }
+  }
+}
