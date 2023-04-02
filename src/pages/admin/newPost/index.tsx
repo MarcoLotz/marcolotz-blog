@@ -1,5 +1,6 @@
 import Editor from '@/components/Editor';
 import { useAuth } from '@/hooks/useAuth';
+import { useEditPost } from '@/hooks/useEdit';
 import api from '@/services/api';
 import { Button, Container, Flex, MultiSelect, Text, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
@@ -9,7 +10,7 @@ import React, { useCallback, useEffect } from 'react';
 
 interface Request {
   title: string;
-  category: never[];
+  category: string[];
   body: string;
 }
 
@@ -27,7 +28,7 @@ const dataURItoBlob = (dataURI: string) => {
   return blob;
 }
 
-const resize = (file: File, max_width: number, max_height: number): Promise<Blob> => {
+const resize = (file: File, max_height: number): Promise<Blob> => {
   return new Promise(resolve => {
     let fileLoader = new FileReader(),
     context: CanvasRenderingContext2D | null = null,
@@ -76,11 +77,15 @@ const resize = (file: File, max_width: number, max_height: number): Promise<Blob
 }
 
 const NewPost: React.FC = () => {
+  const router = useRouter();
+  const { authData } = useAuth();
+  const { editPost } = useEditPost();
+
   const form = useForm({
     initialValues: {
-      title: '',
-      category: [],
-      body: ''
+      title: editPost?.title || '',
+      category: editPost ? editPost.category.split(', ') : [],
+      body: editPost?.body || ''
     },
 
     validate: {
@@ -88,19 +93,20 @@ const NewPost: React.FC = () => {
     },
   });
 
-  const router = useRouter();
-  const { authData } = useAuth();
-
   const handleSubmit = useCallback(async (data: Request) => {
-    await api.post('/api/newPost', {
+    const url = editPost ? '/api/updatePost' : '/api/newPost';
+    const requestMethod = editPost ? api.put : api.post;
+
+    await requestMethod(url, {
       ...data,
-      category: data.category.join(', ')
+      category: data.category.join(', '),
+      id: editPost?.id,
     })
     router.push('/');
-  }, []);
+  }, [editPost]);
 
   const handleImageUpload = async (file: File) => {
-    const resizedFile = await resize(file, 500, 500);
+    const resizedFile = await resize(file, 500);
     return await getBase64FromFile(resizedFile);
   };
 
