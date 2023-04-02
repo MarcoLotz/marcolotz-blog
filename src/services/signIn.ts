@@ -26,8 +26,10 @@ export default async function signIn(data: SignInData) {
     throw new Error(defaultErrorMessage);
 
   const payload = JSON.stringify({
-    sub: user.username
+    sub: user.username,
+    name: user.name
   });
+
   const token = jwt.sign(payload, process.env.SECRET || '');
 
   return {
