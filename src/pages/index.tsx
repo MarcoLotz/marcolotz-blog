@@ -47,6 +47,7 @@ interface PageData {
 type PagedPostsResponse = PageData & PostsResponse;
 
 export default function Home({ data }: { data: PagedPostsResponse }) {
+  const [windowManager, setWindowManager] = useState<Window | undefined>(undefined);
   const [posts, setPosts] = useState<PostData[]>(data.items);
   const [searchText, setSearchText] = useState('');
   const [loading, setLoading] = useState(false);
@@ -82,6 +83,9 @@ export default function Home({ data }: { data: PagedPostsResponse }) {
   }, [pageData.pageIndex, searchText]);
 
   const handleScroll = useCallback(() => {
+    if (typeof windowManager === 'undefined')
+      return;
+
     const { postId } = query;
 
     if (!postId)
@@ -89,8 +93,8 @@ export default function Home({ data }: { data: PagedPostsResponse }) {
 
     const post = document.getElementById(postId as string);
 
-    post && window.scrollTo(post.offsetLeft, post.offsetTop + 260);
-  }, [query.postId]);
+    post && windowManager.scrollTo(post.offsetLeft, post.offsetTop + 260);
+  }, [query.postId, windowManager]);
 
   useEffect(() => {
     handlePageData();
@@ -99,6 +103,11 @@ export default function Home({ data }: { data: PagedPostsResponse }) {
   useEffect(() => {
     handleScroll();
   }, [handleScroll]);
+
+  useEffect(() => {
+    if (typeof windowManager === 'undefined')
+      setWindowManager(window);
+  }, []);
 
   return (
     <>

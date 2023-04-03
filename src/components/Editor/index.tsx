@@ -22,6 +22,7 @@ interface EditorProps {
 
 const Editor: React.FC<EditorProps> = ({ onChange, onImageUpload, value }) => {
 
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -32,7 +33,9 @@ const Editor: React.FC<EditorProps> = ({ onChange, onImageUpload, value }) => {
       Highlight,
       Color,
       TextStyle,
-      Image,
+      Image.configure({
+        allowBase64: true
+      }),
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
     ],
     content: value,
@@ -160,6 +163,7 @@ const Editor: React.FC<EditorProps> = ({ onChange, onImageUpload, value }) => {
       }}
         type="file"
         id="uploader"
+        accept='image/*'
         onChange={({ target }) => target.files && addImage(target.files[0])}
       />
     </Container>

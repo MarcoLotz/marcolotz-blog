@@ -14,6 +14,7 @@ import {
   Avatar,
   UnstyledButton,
   Button,
+  Anchor,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import Router from 'next/router';
@@ -27,6 +28,12 @@ const useStyles = createStyles((theme) => ({
     borderBottom: `${rem(1)} solid ${theme.colorScheme === 'dark' ? 'transparent' : theme.colors.gray[2]
       }`,
     marginBottom: rem(20),
+
+    'a:hover': {
+      textDecoration: 'none',
+      color: 'none',
+      cursor: 'unset',
+    },
   },
 
   mainSection: {
@@ -135,12 +142,11 @@ const Header = () => {
       <Tabs.Tab value="About" onClick={() => handlePush('/about')}>
         About
       </Tabs.Tab>
-      <Tabs.Tab value="Github" onClick={() => {
-        window.open('https://github.com/marcolotz');
-        toggle();
-      }}>
-        Github
-      </Tabs.Tab>
+      <Anchor href='https://github.com/marcolotz' target='_blank' rel='noopener noreferrer'>
+        <Tabs.Tab value="Github">
+          Github
+        </Tabs.Tab>
+      </Anchor>
       <Tabs.Tab value="Contact" onClick={() => handlePush('/contact')}>
         Contact
       </Tabs.Tab>

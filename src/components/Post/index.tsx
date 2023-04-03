@@ -1,10 +1,14 @@
-import { Badge, Button, Container, createStyles, Flex, Text, Title, TypographyStylesProvider } from '@mantine/core';
-import { IconCalendarTime, IconFolder, IconShare, IconUser } from '@tabler/icons-react';
+import { ActionIcon, Badge, Button, Container, createStyles, Flex, Text, Title, TypographyStylesProvider } from '@mantine/core';
+import { IconCalendarTime, IconEdit, IconFolder, IconShare, IconTrash, IconUser } from '@tabler/icons-react';
 import sanitizeHtml from 'sanitize-html';
 import { toast } from 'react-toastify';
 
 
 import React, { useCallback } from 'react';
+import Router from 'next/router';
+import api from '@/services/api';
+import { useAuth } from '@/hooks/useAuth';
+import { useEditPost } from '@/hooks/useEdit';
 
 interface PostData {
   id: string;
@@ -61,6 +65,8 @@ const dateFormatter = new Intl.DateTimeFormat(undefined, {
 
 const Post: React.FC<PostData> = ({ id, title, author, body, category, createdAt, pageIndex }) => {
   const { classes } = useStyles();
+  const { authData } = useAuth();
+  const { setEditPost } = useEditPost();
 
   const copyLink = useCallback(() => {
     const link = `https://www.marcolotz.com/?pageIndex=${pageIndex}&postId=${id}`
@@ -78,8 +84,39 @@ const Post: React.FC<PostData> = ({ id, title, author, body, category, createdAt
     });
   }, [pageIndex, id]);
 
+  const handleDelete = useCallback(async () => {
+    if (!confirm('Do you really want to delete this post?'))
+      return;
+
+    await api.delete('/api/deletePost', {
+      params: {
+        id,
+      }
+    });
+    Router.reload();
+  }, [id, Router]);
+
+  const handleEdit = useCallback(() => {
+    setEditPost({
+      id,
+      title,
+      body,
+      category,
+    });
+    Router.push('/admin/newPost');
+  }, [Router, setEditPost]);
+
   return <Container id={id} className={classes.container}>
-    <Title mb="1.0rem">{title}</Title>
+    <Flex justify="space-between">
+      <Title mb="1.0rem">{title}</Title>
+      {
+        authData.signedIn &&
+        <Flex gap="0.5rem">
+        <ActionIcon onClick={handleDelete} color="red" variant="filled"><IconTrash /></ActionIcon>
+        <ActionIcon onClick={handleEdit} color="yellow" variant="filled"><IconEdit /></ActionIcon>
+      </Flex>
+      }
+    </Flex>
     <Flex className={classes.badgeContainer} gap='0.5rem' mb="md">
       <Badge className={classes.badge} color="lime" size="lg" radius="sm" variant="outline">
         <IconCalendarTime size={16} />
@@ -89,10 +126,12 @@ const Post: React.FC<PostData> = ({ id, title, author, body, category, createdAt
         <IconUser size={16} />
         <Text mt={2.3}>{author}</Text>
       </Badge>
-      <Badge className={classes.badge} color="lime" size="lg" radius="sm" variant="outline">
+      {
+        category &&
+        <Badge className={classes.badge} color="lime" size="lg" radius="sm" variant="outline">
         <IconFolder size={16} />
         <Text mt={2.3}>{category}</Text>
-      </Badge>
+      </Badge>}
 
       {!!pageIndex && <Button
         onClick={() => copyLink()}
