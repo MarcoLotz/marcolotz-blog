@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import { Container, Input, Pagination, Skeleton } from '@mantine/core';
 import Post from '@/components/Post';
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { PostData, PostsResponse } from './api/posts';
 import api from '@/services/api';
 import { IconSearch } from '@tabler/icons-react';
@@ -125,6 +125,7 @@ export default function Home({ data }: { data: PagedPostsResponse }) {
       />
       <Head>
         <title>Marco Aurélio Lotz | Home</title>
+        <meta name="description" content="Thoughts about Big Data and Embedded Systems"/>
       </Head>
       <Container sx={{
         '.mantine-Pagination-control[data-active]': {

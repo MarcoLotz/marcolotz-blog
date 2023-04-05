@@ -8,6 +8,7 @@ const ContactPage: React.FC = () => {
     <>
       <Head>
         <title>Marco Aurélio Lotz | Contact</title>
+        <meta name="description" content="Contact Marco Lotz"/>
       </Head>
       <Contact />
     </>
