@@ -3,23 +3,27 @@ import {Container, Input, Pagination, Skeleton} from '@mantine/core';
 import Post from '@/components/Post';
 import React, {useCallback, useEffect, useState} from 'react';
 import {PostData, PostsResponse} from './api/posts';
-import api from '@/services/api';
 import {IconSearch} from '@tabler/icons-react';
 import {debounce} from 'lodash';
-import {getPostsInPage} from '@/services/getPosts';
 import {useRouter} from "next/router";
-import { ToastContainer } from 'react-toastify';
+import {ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+// TODO: central configuration with process.env.NEXT_PUBLIC_API_URL
 const getPagedPosts = async (pageIndex: number, searchText: string = ''): Promise<PostsResponse> => {
-  const {data: data} = await api.get<PostsResponse>('/api/posts', {
-    params: {
-      pageIndex,
-      searchText
-    }
-  });
 
-  return data;
+  // TODO: Resolve Ts Lint aqui
+  // @ts-ignore
+  const urlParameter: URLSearchParams = new URLSearchParams({
+    pageIndex,
+    searchText
+  })
+
+  const posts: PostsResponse = await (
+    fetch(process.env.NEXT_PUBLIC_API_URL + '/api/posts?' + urlParameter)
+      .then(response => response.json())
+  )
+  return posts;
 };
 
 interface PageData {
@@ -34,7 +38,7 @@ interface PageData {
 export async function getStaticProps() {
 
   // Pre-loads the latest page
-  const page = await getPostsInPage(1);
+  const page = await getPagedPosts(1);
 
   return {
     props: {
@@ -121,7 +125,8 @@ export default function Home({data}: { data: PagedPostsResponse }) {
     <>
       <Head>
         <title>Marco Aurélio Lotz | Home</title>
-        <meta name="description" content="Marcolotz.com: Thoughts about Big Data and Embedded Systems"/>
+        <meta name="description"
+              content="Marcolotz.com: Thoughts about Big Data and Embedded Systems"/>
       </Head>
       <ToastContainer
         position="top-center"
@@ -137,13 +142,13 @@ export default function Home({data}: { data: PagedPostsResponse }) {
       />
       <Container
         sx={{
-        '.mantine-Pagination-control[data-active]': {
-          background: '#79b458',
-          ':hover': {
-            background: '#5e8b44',
+          '.mantine-Pagination-control[data-active]': {
+            background: '#79b458',
+            ':hover': {
+              background: '#5e8b44',
+            }
           }
-        }
-      }}
+        }}
       >
 
         <Pagination
