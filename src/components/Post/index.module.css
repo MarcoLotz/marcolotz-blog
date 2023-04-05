@@ -1,0 +1,34 @@
+container {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  border: 0.0625rem solid #ced4da;
+}
+
+@media screen and (max-width: 600px) {
+  .badgeContainer {
+    flex-direction: column;
+  }
+}
+
+.badge .mantine-Badge-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.htmlProvider figure,
+.htmlProvider img {
+  text-align: center;
+  margin: 0 auto;
+  max-height: 500px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.htmlProvider pre {
+  background-color: #e9ebe8;
+}

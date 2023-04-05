@@ -1,19 +1,9 @@
 import { useCallback, useEffect } from 'react';
-import { TextInput, Button, Group, Box, createStyles, Container, Title } from '@mantine/core';
+import { TextInput, Button, Group, Box, Container, Title } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useAuth } from '@/hooks/useAuth';
 import Router from 'next/router';
-
-const useStyles = createStyles(() => ({
-  container: {
-    backgroundColor: "white",
-    borderRadius: "0.5rem",
-    padding: "2rem",
-    marginBottom: "1.5rem",
-    border: "0.0625rem solid #ced4da",
-    marginTop: "5rem"
-  }
-}));
+import styles from './index.module.css'
 
 interface Request {
   username: string;
@@ -21,7 +11,6 @@ interface Request {
 }
 
 const SignIn: React.FC = () => {
-  const { classes } = useStyles();
   const { authData, signIn } = useAuth();
 
   const form = useForm({
@@ -54,7 +43,7 @@ const SignIn: React.FC = () => {
 
   return (
     <Container >
-      <Box className={classes.container} maw={300} mx="auto">
+      <Box className={styles.container} maw={300} mx="auto">
         <Title size="md" mb="lg">Sign In</Title>
         <form onSubmit={form.onSubmit((values: Request) => hadleSignIn(values))}>
           <TextInput
