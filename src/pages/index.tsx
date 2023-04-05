@@ -1,21 +1,18 @@
 import Head from 'next/head';
-import { Container, Input, Pagination, Skeleton } from '@mantine/core';
+import {Container, Input, Pagination, Skeleton} from '@mantine/core';
 import Post from '@/components/Post';
-import React, { useCallback, useEffect, useState } from 'react';
-import { PostData, PostsResponse } from './api/posts';
+import React, {useCallback, useEffect, useState} from 'react';
+import {PostData, PostsResponse} from './api/posts';
 import api from '@/services/api';
-import { IconSearch } from '@tabler/icons-react';
-import { debounce } from 'lodash';
-import { getPostsInPage } from '@/services/getPosts';
-import { useRouter } from "next/router";
-import { NextPageContext } from 'next';
-
+import {IconSearch} from '@tabler/icons-react';
+import {debounce} from 'lodash';
+import {getPostsInPage} from '@/services/getPosts';
+import {useRouter} from "next/router";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-
 const getPagedPosts = async (pageIndex: number, searchText: string = ''): Promise<PostsResponse> => {
-  const { data: data } = await api.get<PostsResponse>('/api/posts', {
+  const {data: data} = await api.get<PostsResponse>('/api/posts', {
     params: {
       pageIndex,
       searchText
@@ -25,68 +22,79 @@ const getPagedPosts = async (pageIndex: number, searchText: string = ''): Promis
   return data;
 };
 
-// Server Side rendering due to query params
-export async function getServerSideProps(context: NextPageContext) {
-  const { query } = context;
-  const pageIndex = query.pageIndex ? Number.parseInt(query.pageIndex as string) : 1;
-
-  const page = await getPostsInPage(pageIndex);
-
-  return {
-    props: {
-      data: page
-    }
-  }
-}
-
 interface PageData {
   pageIndex: number;
   totalNumberOfPages: number;
 }
 
+// This function gets called at build time on server-side.
+// It may be called again, on a serverless function, if
+// revalidation is enabled and a new request comes in
+// Note: In development it runs on every request
+export async function getStaticProps() {
+
+  // Pre-loads the latest page
+  const page = await getPostsInPage(1);
+
+  return {
+    props: {
+      data: page
+    },
+    // Next.js will attempt to re-generate the page:
+    // - When a request comes in
+    // - At most once every 1 hour
+    revalidate: 60 * 60, // In seconds
+  }
+}
+
 type PagedPostsResponse = PageData & PostsResponse;
 
-export default function Home({ data }: { data: PagedPostsResponse }) {
+
+export default function Home({data}: { data: PagedPostsResponse }) {
   const [windowManager, setWindowManager] = useState<Window | undefined>(undefined);
   const [posts, setPosts] = useState<PostData[]>(data.items);
   const [searchText, setSearchText] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [pageData, setPageData] = useState<PageData>({
     pageIndex: data.pageIndex,
     totalNumberOfPages: data.totalNumberOfPages,
   });
 
-  const { query } = useRouter();
+  const {query} = useRouter();
 
+  // Used to prevent text entries from sending API queries before the wait time
   const debouncedSetSearchText = debounce((text: string) => {
     setSearchText(text);
   }, 500);
 
   const handlePageData = useCallback(() => {
-    setLoading(true);
-
+    // First page is pre-rendered on server-side, no need to loading
     if (pageData.pageIndex === 1 && !searchText) {
       getPagedPosts(pageData.pageIndex)
         .then(res => {
           setPosts(res.items);
-          setPageData(prev => ({ ...prev, totalPages: data.totalNumberOfPages }));
-          setLoading(false);
+          setPageData(prev => ({...prev, totalPages: data.totalNumberOfPages}));
         });
-    }
-    else
+    } else {
+      // Generate "loading" while API call retrieves the data
+      setIsLoading(true);
       getPagedPosts(pageData.pageIndex, searchText)
         .then(res => {
           setPosts(res.items);
-          setPageData(prev => ({ ...prev, totalPages: data.totalNumberOfPages }));
-          setLoading(false);
+          setPageData(prev => ({...prev, totalPages: data.totalNumberOfPages}));
+          setIsLoading(false);
         });
+    }
   }, [pageData.pageIndex, searchText]);
 
+  // This is used to handle share, that will scroll all the way from the original page to the
+  // intended step:
+  // e.g. https://www.marcolotz.com/?pageIndex=1&postId=HigfhDPyMIaiKggRNFnc
   const handleScroll = useCallback(() => {
     if (typeof windowManager === 'undefined')
       return;
 
-    const { postId } = query;
+    const {postId} = query;
 
     if (!postId)
       return;
@@ -111,6 +119,10 @@ export default function Home({ data }: { data: PagedPostsResponse }) {
 
   return (
     <>
+      <Head>
+        <title>Marco Aurélio Lotz | Home</title>
+        <meta name="description" content="Marcolotz.com: Thoughts about Big Data and Embedded Systems"/>
+      </Head>
       <ToastContainer
         position="top-center"
         autoClose={5000}
@@ -123,18 +135,16 @@ export default function Home({ data }: { data: PagedPostsResponse }) {
         pauseOnHover
         theme="light"
       />
-      <Head>
-        <title>Marco Aurélio Lotz | Home</title>
-        <meta name="description" content="Thoughts about Big Data and Embedded Systems"/>
-      </Head>
-      <Container sx={{
+      <Container
+        sx={{
         '.mantine-Pagination-control[data-active]': {
           background: '#79b458',
           ':hover': {
             background: '#5e8b44',
           }
         }
-      }}>
+      }}
+      >
 
         <Pagination
           color="green"
@@ -142,18 +152,18 @@ export default function Home({ data }: { data: PagedPostsResponse }) {
           ml="0"
           mt="0"
           value={pageData.pageIndex}
-          onChange={page => setPageData(prev => ({ ...prev, pageIndex: page }))}
+          onChange={page => setPageData(prev => ({...prev, pageIndex: page}))}
           total={pageData.totalNumberOfPages}
         />
         <Input
           m="lg"
           ml="0"
           maw="400px"
-          icon={<IconSearch />}
+          icon={<IconSearch/>}
           placeholder="Search"
-          onChange={({ target }) => debouncedSetSearchText(target.value)}
+          onChange={({target}) => debouncedSetSearchText(target.value)}
         />
-        <Skeleton visible={loading}>
+        <Skeleton visible={isLoading}>
           {posts.map(post => (
             <Post
               id={post.id}
@@ -174,7 +184,7 @@ export default function Home({ data }: { data: PagedPostsResponse }) {
           ml="0"
           mt="0"
           value={pageData.pageIndex}
-          onChange={page => setPageData(prev => ({ ...prev, pageIndex: page }))}
+          onChange={page => setPageData(prev => ({...prev, pageIndex: page}))}
           total={pageData.totalNumberOfPages}
         />
       </Container>
