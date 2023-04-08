@@ -79,7 +79,7 @@ const resize = (file: File, max_height: number): Promise<Blob> => {
 const NewPost: React.FC = () => {
   const router = useRouter();
   const { authData } = useAuth();
-  const { editPost } = useEditPost();
+  const { editPost, setEditPost } = useEditPost();
 
   const form = useForm({
     initialValues: {
@@ -95,15 +95,18 @@ const NewPost: React.FC = () => {
 
   const handleSubmit = useCallback(async (data: Request) => {
     const url = editPost ? '/api/updatePost' : '/api/newPost';
-    const requestMethod = editPost ? api.put : api.post;
-
-    await requestMethod(url, {
+    const requestData = {
       ...data,
       category: data.category.join(', '),
       id: editPost?.id,
-    })
+    };
+
+    if (editPost)
+      await api.put(url, requestData);
+    else
+      await api.post(url, requestData);
     router.push('/');
-  }, [editPost]);
+  }, [editPost, router]);
 
   const handleImageUpload = async (file: File) => {
     const resizedFile = await resize(file, 500);
@@ -125,12 +128,15 @@ const NewPost: React.FC = () => {
   useEffect(() => {
     if (!authData.signedIn)
       router.push('/admin');
-  }, []);
+  }, [authData.signedIn, router]);
 
   return authData.signedIn ? <Container>
     <form onSubmit={form.onSubmit(handleSubmit)}>
       <Flex mb="2rem" justify="space-between">
-        <Button onClick={() => router.push('/')} bg="white" color="red" w="9rem" ml="1rem" variant="outline">
+        <Button onClick={() => {
+          setEditPost(null);
+          router.push('/');
+        }} bg="white" color="red" w="9rem" ml="1rem" variant="outline">
           <IconX /> <Text ml="0.8rem" size={20}>Cancel</Text>
         </Button>
         <Button bg="white" type='submit' color="green" w="8rem" mr="1rem" variant="outline">

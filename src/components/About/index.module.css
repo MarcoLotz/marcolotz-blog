@@ -1,0 +1,43 @@
+.container {
+  border: 0.0625rem solid #ced4da;
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  color: #616161;
+}
+
+.container ul {
+  color: #616161;
+  margin-left: 1rem;
+}
+
+.container ul li {
+  margin: 1rem auto;
+  max-width: 800px;
+}
+
+.container a {
+  text-decoration: inherit;
+  color: #79b458;
+  cursor: pointer;
+}
+
+.card {
+  position: relative;
+  width: 250px;
+}
+
+.title {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.text {
+  max-width: 900px;
+  margin: 1rem auto;
+}
+
+.topic {
+  margin-top: 2rem;
+  color: black;
+}

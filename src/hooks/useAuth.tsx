@@ -35,11 +35,10 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
   }, [storage]);
 
   const signIn = useCallback(async ({ username, password }: SignInRequest) => {
-    const response = await api.post('api/signIn', {
+    const data = await api.post('/api/signIn', {
       username,
       password,
     });
-    const { data } = response;
     const authData = {
       ...data,
       signedIn: true
@@ -48,10 +47,10 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
     if (storage)
       storage.setItem('auth', JSON.stringify(authData));
 
-    api.defaults.headers['Authorization'] = `Bearer ${data.token}`;
+    api.headers['Authorization'] = `Bearer ${data.token}`;
 
     setData(authData);
-  }, [storage, api, storage]);
+  }, [storage]);
 
   useEffect(() => {
     setStorage(localStorage);
@@ -63,11 +62,11 @@ export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
 
       if (authData) {
         const parsedData = JSON.parse(authData);
-        api.defaults.headers['Authorization'] = `Bearer ${parsedData.token}`;
+        api.headers['Authorization'] = `Bearer ${parsedData.token}`;
         setData(parsedData)
       }
     }
-  }, [storage, api])
+  }, [storage])
 
   return (
     <AuthContext.Provider value={{ authData: data, signOut, signIn }}>

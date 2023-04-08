@@ -1,54 +1,15 @@
-import { ActionIcon, Container, createStyles, Group, rem } from '@mantine/core';
+import { ActionIcon, Container, Group } from '@mantine/core';
 import { IconBrandGithub, IconBrandGoogle, IconBrandLinkedin, IconBrandTwitter } from '@tabler/icons-react';
+import styles from './index.module.css'
 import React from 'react';
 
-const useStyles = createStyles((theme) => ({
-  footer: {
-    marginTop: rem(60),
-    borderTop: `${rem(1)} solid ${theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[2]
-      }`,
-    background: 'white',
-    color: "#868e96",
-
-    "a": {
-      textDecoration: "none",
-      color: "inherit",
-      cursor: "pointer",
-
-      ":hover": {
-        transform: "scale(1.02)",
-        transition: "0.5s transform"
-      }
-    }
-  },
-
-  inner: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: theme.spacing.xl,
-    paddingBottom: theme.spacing.xl,
-
-    [theme.fn.smallerThan('xs')]: {
-      flexDirection: 'column',
-    },
-  },
-
-  links: {
-    [theme.fn.smallerThan('xs')]: {
-      marginTop: theme.spacing.md,
-    },
-  },
-}));
-
 const Footer: React.FC = () => {
-  const { classes } = useStyles();
   const date = new Date().getFullYear()
   return (
-    <div className={classes.footer}>
-      <Container className={classes.inner}>
+    <div className={styles.footer}>
+      <Container className={styles.inner}>
         <span>© {date} by Marco Aurélio Lotz</span>
-        <Group spacing={0} className={classes.links} position="right" noWrap>
+        <Group spacing={0} className={styles.links} position="right" noWrap>
           <a href="https://www.linkedin.com/in/marcolotz/" target="_blank">
             <ActionIcon size="lg">
               <IconBrandLinkedin size="1.05rem" stroke={1.5} />

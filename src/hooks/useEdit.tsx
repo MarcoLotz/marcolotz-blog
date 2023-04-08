@@ -9,7 +9,7 @@ interface EditPostData {
 
 interface EditPostContextData {
   editPost: EditPostData | null;
-  setEditPost: (editPost: EditPostData) => void;
+  setEditPost: (editPost: EditPostData | null) => void;
 }
 
 export const EditPostContext = createContext<EditPostContextData>(

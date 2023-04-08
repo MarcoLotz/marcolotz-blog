@@ -50,7 +50,7 @@ const Editor: React.FC<EditorProps> = ({ onChange, onImageUpload, value }) => {
 
     const url = await onImageUpload(file);
     editor.chain().focus().setImage({ src: url, }).run()
-  }, [editor]);
+  }, [editor, onImageUpload]);
 
   return (
     <Container>
