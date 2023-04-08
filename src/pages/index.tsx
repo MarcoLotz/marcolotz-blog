@@ -8,21 +8,16 @@ import {debounce} from 'lodash';
 import {useRouter} from "next/router";
 import {ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import api from '@/services/api';
 
-// TODO: central configuration with process.env.NEXT_PUBLIC_API_URL
 const getPagedPosts = async (pageIndex: number, searchText: string = ''): Promise<PostsResponse> => {
-
-  // TODO: Resolve Ts Lint aqui
-  // @ts-ignore
-  const urlParameter: URLSearchParams = new URLSearchParams({
+  const urlParameter = {
     pageIndex,
     searchText
-  })
+  };
 
-  const posts: PostsResponse = await (
-    fetch(process.env.NEXT_PUBLIC_API_URL + '/api/posts?' + urlParameter)
-      .then(response => response.json())
-  )
+  const posts = await api.get<PostsResponse>('/api/posts', urlParameter);
+
   return posts;
 };
 

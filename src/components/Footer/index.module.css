@@ -1,11 +1,6 @@
 .footer {
   margin-top: 60px;
   border-top: 0.0625rem solid #e9ecef;
-  /* TODO: Fix Mantine
-  border-top: 1px solid ${(props) =>*/
-  /*  props.theme.colorScheme === "dark"*/
-  /*    ? props.theme.colors.dark[5]*/
-  /*    : props.theme.colors.gray[2]};*/
   background: white;
   color: #868e96;
 }
@@ -27,22 +22,16 @@
   align-items: center;
   padding-top: 1.5rem;
   padding-bottom: 1.5rem;
-  /*TODO: Here was depending on Mantine*/
-  /*padding-top: ${(props) => props.theme.spacing.xl};*/
-  /*padding-bottom: ${(props) => props.theme.spacing.xl};*/
 }
 
-/*TODO: fix mantine @media (max-width: ${(props) => props.theme.breakpoints.xs}px) {*/
 @media (max-width: 200px) {
   .inner {
     flex-direction: column;
   }
 }
 
-/*.links {*/
-/*!*TODO: Fix Mantine*!*/
-/*!*@media (max-width: ${(props) => props.theme.breakpoints.xs}px) {*!*/
-/*@media (max-width: 200px) {*/
-/*  margin-top: 60px;*/
-/*}*/
-/*}*/
+@media screen and (max-width: 200px) {
+  .links {
+  margin-top: 60px;
+  }
+}

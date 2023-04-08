@@ -1,0 +1,89 @@
+.header {
+  padding-top: 5px;
+  background-color: #f8f9fa;
+  border-bottom: 0.0625rem solid #e9ecef;
+  margin-bottom: 20px;
+
+  a:hover {
+    text-decoration: none;
+    color: none;
+    cursor: unset;
+  }
+}
+
+.mainSection {
+  padding-bottom: 1rem;
+}
+
+.user {
+  padding: 0.8rem;
+  border-radius: 5px;
+  transition: background-color 100ms ease;
+
+}
+
+.burger {
+  @media screen and (min-width: 670px) {
+    display: none;
+  }
+
+  z-index: 10;
+}
+
+.userActive {
+  background: white;
+}
+
+.tabs {
+  @media screen and (max-width: 670px) {
+    display: none;
+  }
+}
+
+.tabsList {
+  border-bottom: 0 !important;
+  gap: 0.5rem;
+}
+
+.tab {
+  font-weight: 600;
+  height: 38px;
+  background-color: #79b458;
+  color: white;
+
+  &:hover {
+    background-color: #79b458a0;
+  }
+
+  &[data-active] {
+    background: white;
+    color: #79b458;
+  }
+}
+
+.dropdown {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  overflow: hidden;
+  border: 1x solid black;
+
+  @media screen  and (min-width: 670px) {
+    display: none;
+  }
+}
+
+.dropdownTabs {
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    button {
+      width: 100%;
+      font-size: 1.3rem;
+      color: #000000b3;
+    }
+  }
+}
