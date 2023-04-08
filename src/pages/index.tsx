@@ -84,7 +84,7 @@ export default function Home({data}: { data: PagedPostsResponse }) {
           setIsLoading(false);
         });
     }
-  }, [pageData.pageIndex, searchText]);
+  }, [pageData.pageIndex, pageData.totalNumberOfPages, searchText]);
 
   // This is used to handle share, that will scroll all the way from the original page to the
   // intended step:
@@ -101,7 +101,7 @@ export default function Home({data}: { data: PagedPostsResponse }) {
     const post = document.getElementById(postId as string);
 
     post && windowManager.scrollTo(post.offsetLeft, post.offsetTop + 260);
-  }, [query.postId, windowManager]);
+  }, [windowManager, query]);
 
   useEffect(() => {
     handlePageData();
@@ -114,7 +114,7 @@ export default function Home({data}: { data: PagedPostsResponse }) {
   useEffect(() => {
     if (typeof windowManager === 'undefined')
       setWindowManager(window);
-  }, []);
+  }, [windowManager]);
 
   return (
     <>

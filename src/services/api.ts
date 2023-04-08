@@ -70,5 +70,5 @@ class HttpClient {
   }
 }
 
-
-export default new HttpClient(process.env.NEXT_PUBLIC_API_URL);
+const api = new HttpClient(process.env.NEXT_PUBLIC_API_URL);
+export default api;

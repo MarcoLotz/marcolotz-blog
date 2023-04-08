@@ -53,7 +53,7 @@ const Post: React.FC<PostData> = ({ id, title, author, body, category, createdAt
         id,
       });
     Router.reload();
-  }, [id, Router]);
+  }, [id]);
 
   const handleEdit = useCallback(() => {
     setEditPost({
@@ -63,7 +63,7 @@ const Post: React.FC<PostData> = ({ id, title, author, body, category, createdAt
       category,
     });
     Router.push('/admin/newPost');
-  }, [Router, setEditPost]);
+  }, [setEditPost, body, category, title, id]);
 
   return <Container id={id} className={styles.container}>
     <Flex justify="space-between">

@@ -32,14 +32,14 @@ const SignIn: React.FC = () => {
     } catch {
       form.setFieldError('password', 'Wrong username/password');
     }
-  }, []);
+  }, [form, signIn]);
 
 
   useEffect(() => {
     if (!!authData.signedIn) {
       Router.push('/');
     };
-  }, []);
+  }, [authData.signedIn]);
 
   return (
     <Container >

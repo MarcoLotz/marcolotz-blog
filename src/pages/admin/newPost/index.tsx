@@ -106,7 +106,7 @@ const NewPost: React.FC = () => {
     else
       await api.post(url, requestData);
     router.push('/');
-  }, [editPost]);
+  }, [editPost, router]);
 
   const handleImageUpload = async (file: File) => {
     const resizedFile = await resize(file, 500);
@@ -128,7 +128,7 @@ const NewPost: React.FC = () => {
   useEffect(() => {
     if (!authData.signedIn)
       router.push('/admin');
-  }, []);
+  }, [authData.signedIn, router]);
 
   return authData.signedIn ? <Container>
     <form onSubmit={form.onSubmit(handleSubmit)}>
