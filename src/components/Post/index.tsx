@@ -1,4 +1,4 @@
-import { ActionIcon, Badge, Button, Container, createStyles, Flex, Text, Title, TypographyStylesProvider } from '@mantine/core';
+import { ActionIcon, Badge, Button, Container, Flex, Text, Title, TypographyStylesProvider } from '@mantine/core';
 import { IconCalendarTime, IconEdit, IconFolder, IconShare, IconTrash, IconUser } from '@tabler/icons-react';
 import sanitizeHtml from 'sanitize-html';
 import { toast } from 'react-toastify';
@@ -67,7 +67,7 @@ const Post: React.FC<PostData> = ({ id, title, author, body, category, createdAt
 
   return <Container id={id} className={styles.container}>
     <Flex justify="space-between">
-      <Title mb="1.0rem">{title}</Title>
+      <Title mb="1.0rem" mr="1.5rem">{title}</Title>
       {
         authData.signedIn &&
         <Flex gap="0.5rem">

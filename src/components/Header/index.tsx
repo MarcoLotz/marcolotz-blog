@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import {
-  createStyles,
   Container,
   Group,
   Text,
@@ -20,12 +19,14 @@ import Router from 'next/router';
 import { useAuth } from '@/hooks/useAuth';
 import { IconChevronDown, IconFilePlus, IconLogout } from '@tabler/icons-react';
 import styles from './index.module.scss';
+import { useEditPost } from '@/hooks/useEdit';
 
 const Header = () => {
   const [opened, { toggle }] = useDisclosure(false);
   const [userMenuOpened, setUserMenuOpened] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('Home');
   const { authData, signOut } = useAuth();
+  const { setEditPost } = useEditPost();
 
   const handlePush = (route: string) => {
     Router.push(route);
@@ -86,7 +87,10 @@ const Header = () => {
             <Menu.Dropdown>
               <Menu.Label>Settings</Menu.Label>
               <Menu.Item
-                onClick={() => Router.push('/admin/newPost')}
+                onClick={() =>{
+                  Router.push('/admin/newPost');
+                  setEditPost(null);
+                }}
                 icon={<IconFilePlus size="1.3rem" stroke={1.5} />}>
                 New Post
               </Menu.Item>
