@@ -9,6 +9,7 @@ import {useRouter} from "next/router";
 import {ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import api from '@/services/api';
+import { getPostsInPage } from '@/services/getPosts';
 
 const getPagedPosts = async (pageIndex: number, searchText: string = ''): Promise<PostsResponse> => {
   const urlParameter = {
@@ -33,7 +34,7 @@ interface PageData {
 export async function getStaticProps() {
 
   // Pre-loads the latest page
-  const page = await getPagedPosts(1);
+  const page = await getPostsInPage(1);
 
   return {
     props: {
