@@ -139,7 +139,7 @@ export default function Home({data}: { data: PagedPostsResponse }) {
       <Container
         sx={{
           '.mantine-Pagination-control[data-active]': {
-            background: '#79b458',
+            background: '#56813C',
             ':hover': {
               background: '#5e8b44',
             }

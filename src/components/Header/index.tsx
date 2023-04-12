@@ -57,7 +57,7 @@ const Header = () => {
         <Group position="apart">
           <div>
             <Title size={45}>Marco Aurelio Lotz</Title>
-            <Text color="gray" size={15}>Thoughts about Big Data and Embedded Systems</Text>
+            <Text className={styles.subtitle} size={15}>Thoughts about Big Data and Embedded Systems</Text>
           </div>
 
           <Burger opened={opened} onClick={toggle} className={styles.burger} size="sm" />
@@ -109,7 +109,8 @@ const Header = () => {
           {!authData.signedIn &&
             <Button
               variant="outline"
-              color='green'
+              className={styles.signinButton}
+              // color='green'
               onClick={() => Router.push('/admin')}>
               Sign In
             </Button>}
