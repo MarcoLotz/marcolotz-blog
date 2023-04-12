@@ -3,7 +3,9 @@
   background-color: #f8f9fa;
   border-bottom: 0.0625rem solid #e9ecef;
   margin-bottom: 20px;
-
+  .subtitle {
+    color: #4F4F4F
+  }
   a:hover {
     text-decoration: none;
     color: none;
@@ -47,16 +49,16 @@
 .tab {
   font-weight: 600;
   height: 38px;
-  background-color: #79b458;
+  background-color: #56813C;
   color: white;
 
   &:hover {
-    background-color: #79b458a0;
+    background-color: #56813Ca0;
   }
 
   &[data-active] {
     background: white;
-    color: #79b458;
+    color: #56813C;
   }
 }
 
@@ -71,6 +73,10 @@
   @media screen  and (min-width: 670px) {
     display: none;
   }
+}
+
+.signinButton {
+  color: #373A76;
 }
 
 .dropdownTabs {
