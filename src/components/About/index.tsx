@@ -1,4 +1,5 @@
-import {Card, Center, Container, Image, List, Text, Title, useMantineTheme} from '@mantine/core';
+import {Card, Center, Container, List, Text, Title } from '@mantine/core';
+import Image from 'next/image'
 import React from 'react';
 import MarcoImg from '@/assets/marco.jpg';
 import styles from './index.module.css'
@@ -24,7 +25,7 @@ const About: React.FC = () => {
     <Center>
       <Card withBorder radius="md" p={2} className={styles.card}>
         <Card.Section>
-          <Image src={MarcoImg.src} alt="Marco Aurélio Lotz" width={265}/>
+          <Image src={MarcoImg.src} alt="Marco Aurélio Lotz" width={265} height={371.12}/>
         </Card.Section>
       </Card>
     </Center>
