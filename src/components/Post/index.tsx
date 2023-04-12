@@ -77,28 +77,28 @@ const Post: React.FC<PostData> = ({ id, title, author, body, category, createdAt
       }
     </Flex>
     <Flex className={styles.badgeContainer} gap='0.5rem' mb="md">
-      <Badge className={styles.badge} color="lime" size="lg" radius="sm" variant="outline">
+      <Badge className={styles.badge} size="lg" radius="sm" variant="outline">
         <IconCalendarTime size={16} />
         <Text mt={2.3}>{dateFormatter.format(new Date(createdAt))}</Text>
       </Badge>
-      <Badge className={styles.badge} color="lime" size="lg" radius="sm" variant="outline">
+      <Badge className={styles.badge} size="lg" radius="sm" variant="outline">
         <IconUser size={16} />
         <Text mt={2.3}>{author}</Text>
       </Badge>
       {
         category &&
-        <Badge className={styles.badge} color="lime" size="lg" radius="sm" variant="outline">
+        <Badge className={styles.badge} size="lg" radius="sm" variant="outline">
           <IconFolder size={16} />
           <Text mt={2.3}>{category}</Text>
         </Badge>}
 
       {!!pageIndex && <Button
+        className={styles.badge}
         onClick={() => copyLink()}
         h={26}
         w={30}
         p={6}
         variant="outline"
-        color="lime"
         radius="sm"
         compact>
         <IconShare />
