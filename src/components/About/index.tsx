@@ -25,7 +25,7 @@ const About: React.FC = () => {
     <Center>
       <Card withBorder radius="md" p={2} className={styles.card}>
         <Card.Section>
-          <Image src={MarcoImg.src} alt="Marco Aurélio Lotz" width={265} height={371.12}/>
+          <Image src={MarcoImg.src} alt="Marco Aurélio Lotz" width={265} height={371.12} priority/>
         </Card.Section>
       </Card>
     </Center>

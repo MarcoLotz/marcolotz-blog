@@ -60,7 +60,7 @@ const Header = () => {
             <Text className={styles.subtitle} size={15}>Thoughts about Big Data and Embedded Systems</Text>
           </div>
 
-          <Burger opened={opened} onClick={toggle} className={styles.burger} size="sm" />
+          <Burger opened={opened} onClick={toggle} className={styles.burger} size="sm" aria-label="Marco Lotz website menu" />
           <Menu
             width={260}
             position="bottom-end"
