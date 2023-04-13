@@ -41,7 +41,7 @@ const Header = () => {
       <Tabs.Tab value="About" onClick={() => handlePush('/about')}>
         About
       </Tabs.Tab>
-      <Anchor href='https://github.com/marcolotz' target='_blank' rel='noopener noreferrer'>
+      <Anchor role='tab' href='https://github.com/marcolotz' target='_blank' rel='noopener noreferrer'>
         <Tabs.Tab value="Github">
           Github
         </Tabs.Tab>
