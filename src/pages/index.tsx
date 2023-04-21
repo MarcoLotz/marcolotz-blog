@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import {Container, Input, Pagination, Skeleton} from '@mantine/core';
+import {Container, Group, Input, Pagination, Skeleton} from '@mantine/core';
 import Post from '@/components/Post';
 import React, {useCallback, useEffect, useState} from 'react';
 import {PostData, PostsResponse} from './api/posts';
@@ -9,7 +9,7 @@ import {useRouter} from "next/router";
 import {ToastContainer} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import api from '@/services/api';
-import { getPostsInPage } from '@/services/getPosts';
+import {getPostsInPage} from '@/services/getPosts';
 
 const getPagedPosts = async (pageIndex: number, searchText: string = ''): Promise<PostsResponse> => {
   const urlParameter = {
@@ -147,18 +147,22 @@ export default function Home({data}: { data: PagedPostsResponse }) {
         }}
       >
 
-        <Pagination
-          color="green"
-          m="lg"
-          ml="0"
-          mt="0"
-          value={pageData.pageIndex}
-          onChange={page => setPageData(prev => ({...prev, pageIndex: page}))}
-          total={pageData.totalNumberOfPages}
-          getItemProps={(page) => ({
-            'aria-label': 'top-pagination'
-          })}
-        />
+        <Pagination.Root total={pageData.totalNumberOfPages}
+                         getItemProps={(page) => ({
+                           'aria-label': 'top-pagination'
+                         })}
+                         value={pageData.pageIndex}
+                         onChange={page => setPageData(prev => ({...prev, pageIndex: page}))}>
+          <Group
+            color="green"
+            m="lg"
+            ml="0"
+            mt="0">
+            <Pagination.Previous aria-label='top-pagination'/>
+            <Pagination.Items/>
+            <Pagination.Next arial-label='top-pagination'/>
+          </Group>
+        </Pagination.Root>
         <Input
           m="lg"
           ml="0"
@@ -181,19 +185,22 @@ export default function Home({data}: { data: PagedPostsResponse }) {
             />
           ))}
         </Skeleton>
-
-        <Pagination
-          color="green"
-          m="lg"
-          ml="0"
-          mt="0"
-          value={pageData.pageIndex}
-          onChange={page => setPageData(prev => ({...prev, pageIndex: page}))}
-          total={pageData.totalNumberOfPages}
-          getItemProps={(page) => ({
-            'aria-label': 'bottom-pagination'
-          })}
-        />
+        <Pagination.Root total={pageData.totalNumberOfPages}
+                         getItemProps={(page) => ({
+                           'aria-label': 'bottom-pagination'
+                         })}
+                         value={pageData.pageIndex}
+                         onChange={page => setPageData(prev => ({...prev, pageIndex: page}))}>
+          <Group
+            color="green"
+            m="lg"
+            ml="0"
+            mt="0">
+            <Pagination.Previous aria-label='bottom-pagination'/>
+            <Pagination.Items/>
+            <Pagination.Next arial-label='bottom-pagination'/>
+          </Group>
+        </Pagination.Root>
       </Container>
     </>
   )
