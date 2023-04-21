@@ -160,7 +160,7 @@ export default function Home({data}: { data: PagedPostsResponse }) {
             mt="0">
             <Pagination.Previous aria-label='top-pagination'/>
             <Pagination.Items/>
-            <Pagination.Next arial-label='top-pagination'/>
+            <Pagination.Next aria-label='top-pagination'/>
           </Group>
         </Pagination.Root>
         <Input
@@ -198,7 +198,7 @@ export default function Home({data}: { data: PagedPostsResponse }) {
             mt="0">
             <Pagination.Previous aria-label='bottom-pagination'/>
             <Pagination.Items/>
-            <Pagination.Next arial-label='bottom-pagination'/>
+            <Pagination.Next aria-label='bottom-pagination'/>
           </Group>
         </Pagination.Root>
       </Container>
