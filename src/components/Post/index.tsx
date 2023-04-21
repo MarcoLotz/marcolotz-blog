@@ -100,6 +100,7 @@ const Post: React.FC<PostData> = ({ id, title, author, body, category, createdAt
         p={6}
         variant="outline"
         radius="sm"
+        aria-label="share button"
         compact>
         <IconShare />
       </Button>}
