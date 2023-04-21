@@ -155,6 +155,9 @@ export default function Home({data}: { data: PagedPostsResponse }) {
           value={pageData.pageIndex}
           onChange={page => setPageData(prev => ({...prev, pageIndex: page}))}
           total={pageData.totalNumberOfPages}
+          getItemProps={(page) => ({
+            'aria-label': 'top-pagination'
+          })}
         />
         <Input
           m="lg"
@@ -187,6 +190,9 @@ export default function Home({data}: { data: PagedPostsResponse }) {
           value={pageData.pageIndex}
           onChange={page => setPageData(prev => ({...prev, pageIndex: page}))}
           total={pageData.totalNumberOfPages}
+          getItemProps={(page) => ({
+            'aria-label': 'bottom-pagination'
+          })}
         />
       </Container>
     </>
