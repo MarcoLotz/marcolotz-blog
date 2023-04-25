@@ -60,7 +60,7 @@ export default function Home({data}: { data: PagedPostsResponse }) {
     totalNumberOfPages: data.totalNumberOfPages,
   });
 
-  const {query} = useRouter();
+  const {query, replace} = useRouter();
 
   // Used to prevent text entries from sending API queries before the wait time
   const debouncedSetSearchText = debounce((text: string) => {
@@ -90,18 +90,19 @@ export default function Home({data}: { data: PagedPostsResponse }) {
   // This is used to handle share, that will scroll all the way from the original page to the
   // intended step:
   // e.g. https://www.marcolotz.com/?pageIndex=1&postId=HigfhDPyMIaiKggRNFnc
-  const handleScroll = useCallback(() => {
+  const handleScroll = useCallback((postId: string) => {
     if (typeof windowManager === 'undefined')
       return;
-
-    const {postId} = query;
 
     if (!postId)
       return;
 
     const post = document.getElementById(postId as string);
 
-    post && windowManager.scrollTo(post.offsetLeft, post.offsetTop + 260);
+    if (post) {
+      windowManager.scrollTo(post.offsetLeft, post.offsetTop + 260);
+      replace('/', undefined, { shallow: true });
+    }
   }, [windowManager, query]);
 
   useEffect(() => {
@@ -109,8 +110,21 @@ export default function Home({data}: { data: PagedPostsResponse }) {
   }, [handlePageData]);
 
   useEffect(() => {
-    handleScroll();
-  }, [handleScroll]);
+    const {postId, pageIndex} = query;
+
+    if (!pageIndex || !postId)
+      return;
+
+    const parsedPageIndex = Number.parseInt(pageIndex as string);
+
+    // Loads page data before handle scrolling if necessary
+    if (parsedPageIndex === pageData.pageIndex) {
+      handleScroll(postId as string);
+    } else {
+      setPageData(prev => ({...prev, pageIndex: parsedPageIndex}));
+    }
+
+  }, [handleScroll, pageData, query]);
 
   useEffect(() => {
     if (typeof windowManager === 'undefined')
