@@ -23,7 +23,7 @@ import {useEditPost} from '@/hooks/useEdit';
 const Header = () => {
   const [opened, {toggle}] = useDisclosure(false);
   const [userMenuOpened, setUserMenuOpened] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>('Home');
+  const [activeTab, setActiveTab] = useState<string>('home');
   const {authData, signOut} = useAuth();
   const {setEditPost} = useEditPost();
 
@@ -34,17 +34,17 @@ const Header = () => {
 
   const tabs =
     <Tabs.List>
-      <Tabs.Tab value="Home" onClick={() => handlePush('/')}>
+      <Tabs.Tab value="home"  onClick={() => handlePush('/')}>
         Home
       </Tabs.Tab>
-      <Tabs.Tab value="About" onClick={() => handlePush('/about')}>
+      <Tabs.Tab value="about" onClick={() => handlePush('/about')}>
         About
       </Tabs.Tab>
-      <Tabs.Tab value="Github"
+      <Tabs.Tab value="github"
                 onClick={() => window.open('https://github.com/marcolotz', '_blank', 'noopener,noreferrer')}>
         Github
       </Tabs.Tab>
-        <Tabs.Tab value="Contact" onClick={() => handlePush('/contact')}>
+        <Tabs.Tab value="contact" onClick={() => handlePush('/contact')}>
         Contact
       </Tabs.Tab>
     </Tabs.List>;
@@ -119,7 +119,7 @@ const Header = () => {
       </Container>
       <Container>
         <Tabs
-          defaultValue="Home"
+          defaultValue="home"
           variant="outline"
           classNames={{
             root: styles.tabs,
@@ -127,7 +127,7 @@ const Header = () => {
             tab: styles.tab,
           }}
           value={activeTab}
-          onTabChange={(value) => value !== 'Github' && setActiveTab(value || 'Home')}
+          onTabChange={(value) => value !== 'Github' && setActiveTab(value || 'home')}
         >
           {tabs}
         </Tabs>
