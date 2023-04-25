@@ -33,21 +33,27 @@ const Header = () => {
   };
 
   const tabs =
-    <Tabs.List>
-      <Tabs.Tab value="home"  onClick={() => handlePush('/')}>
-        Home
-      </Tabs.Tab>
-      <Tabs.Tab value="about" onClick={() => handlePush('/about')}>
-        About
-      </Tabs.Tab>
-      <Tabs.Tab value="github"
-                onClick={() => window.open('https://github.com/marcolotz', '_blank', 'noopener,noreferrer')}>
-        Github
-      </Tabs.Tab>
-        <Tabs.Tab value="contact" onClick={() => handlePush('/contact')}>
-        Contact
-      </Tabs.Tab>
-    </Tabs.List>;
+    <>
+      <Tabs.List>
+        <Tabs.Tab value="home"  onClick={() => handlePush('/')}>
+          Home
+        </Tabs.Tab>
+        <Tabs.Tab value="about" onClick={() => handlePush('/about')}>
+          About
+        </Tabs.Tab>
+        <Tabs.Tab value="github"
+                  onClick={() => window.open('https://github.com/marcolotz', '_blank', 'noopener,noreferrer')}>
+          Github
+        </Tabs.Tab>
+          <Tabs.Tab value="contact" onClick={() => handlePush('/contact')}>
+          Contact
+        </Tabs.Tab>
+      </Tabs.List>
+      <Tabs.Panel value="home">{null}</Tabs.Panel>
+      <Tabs.Panel value="about">{null}</Tabs.Panel>
+      <Tabs.Panel value="github">{null}</Tabs.Panel>
+      <Tabs.Panel value="contact">{null}</Tabs.Panel>
+    </>;
 
   return (
     <div style={{position: 'relative'}} className={styles.header}>
@@ -133,7 +139,7 @@ const Header = () => {
         </Tabs>
       </Container>
       {opened && <Paper className={styles.dropdown} withBorder>
-        <Tabs className={styles.dropdownTabs}>
+        <Tabs defaultValue="home" className={styles.dropdownTabs}>
           {tabs}
         </Tabs>
       </Paper>}
