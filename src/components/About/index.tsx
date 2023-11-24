@@ -41,7 +41,7 @@ const About: React.FC = () => {
       Vice President for Swiss Re. I lead a globally distributed team composed of a mosaic of backgrounds
       (from PhDs in Mathematics to Apache open source contributors) driving Foundry Data Platform. In
       parallel to that, I am also the founder of { }
-      <a href="www.neucom.io" target="_blank" rel="noopener">Neucom Software Design</a>, a software
+      <a href="https://www.neucom.io" target="_blank" rel="noopener">Neucom Software Design</a>, a software
       engineering company specialized on designing high-performance data pipelines, helping companies
       on their data-driven transition by building their Big Data analytics capabilities with efficiency.
     </Text>
