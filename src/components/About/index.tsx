@@ -38,8 +38,8 @@ const About: React.FC = () => {
     </Text>
     <Text className={styles.text}>
       I am a {age} year-old Electronics and Telecommunications Engineer and I’ve been working as a
-      Vice President for Swiss Re. I lead a globally distributed team composed of a mosaic of backgrounds
-      (from PhDs in Mathematics to Apache open source contributors) driving Foundry Data Platform. In
+      Director / Senior Vice President for Swiss Re. I lead a globally distributed team composed of a mosaic of backgrounds
+      (from PhDs in Mathematics to Apache open source contributors) driving Palantir Foundry Data Platform. In
       parallel to that, I am also the founder of { }
       <a href="https://www.neucom.io" target="_blank" rel="noopener">Neucom Software Design</a>, a software
       engineering company specialized on designing high-performance data pipelines, helping companies
@@ -48,7 +48,7 @@ const About: React.FC = () => {
     <Text className={styles.text}>
       Stargate is a high-profile data platform based on Apache Spark, Avro, Parquet and related Big
       Data technologies. It is a deeply customized deployment of Palantir Foundry and under constant
-      improvements. Our data platform consists of more than 7 Petabytes of real-world data being
+      improvements. Our data platform consists of more than 9 Petabytes of real-world data being
       processed
       round the clock – from floods and earthquakes models to COVID-19 analytics. Some of our
       datasets
