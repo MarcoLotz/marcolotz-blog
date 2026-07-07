@@ -23,12 +23,21 @@
 }
 
 .badge {
-  max-width: 17rem;
+  position: relative;
+  width: 17rem;
   height: 2.5rem;
   display: flex;
-  justify-content: left;
+  justify-content: center;
   align-items: center;
   color: #56813c;
   border-color: #56813c;
   line-height: 1rem;
+}
+
+/* Pin the icon to the left edge so every label centers identically. */
+.badgeSection {
+  position: absolute;
+  left: 0.75rem;
+  display: flex;
+  align-items: center;
 }

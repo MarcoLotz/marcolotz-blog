@@ -8,7 +8,30 @@ import {
 import styles from './index.module.css';
 import React from 'react';
 
-const Index: React.FC = () => {
+const PLATFORMS = [
+  {
+    label: 'LinkedIn',
+    href: 'https://www.linkedin.com/in/marcolotz/',
+    icon: IconBrandLinkedin,
+  },
+  {
+    label: 'Twitter',
+    href: 'https://twitter.com/lotzmarco',
+    icon: IconBrandTwitter,
+  },
+  {
+    label: 'Github',
+    href: 'https://github.com/marcolotz',
+    icon: IconBrandGithub,
+  },
+  {
+    label: 'Google Scholar',
+    href: 'https://scholar.google.com/citations?hl=en&view_op=list_works&gmla=AJsN-F5QS1KdMYiF5OV9acpzgB_1h-RalA6WUxpgjxB5CRaeuyyprGL3AGfqiKKGpdpgqtCCIk-v4htT06LUuFkQKlC_k3yRFw&user=TeyCW8MAAAAJ',
+    icon: IconBrandGoogle,
+  },
+];
+
+const Contact: React.FC = () => {
   return (
     <Container className={styles.container}>
       <Title c="black">Contact</Title>
@@ -20,62 +43,24 @@ const Index: React.FC = () => {
       <Text>Bear in mind that one can also find me on the following platforms:</Text>
 
       <Center>
-        <Stack w={'20rem'}>
-          <a target="_blank" href="https://www.linkedin.com/in/marcolotz/" type="button">
-            <Badge
-              className={styles.badge}
-              leftSection={<IconBrandLinkedin size="1.5rem" />}
-              size="xl"
-              radius="0.3rem"
-              variant="outline"
-            >
-              <Text ml="3.5rem">LinkedIn</Text>
-            </Badge>
-          </a>
-
-          <a target="_blank" href="https://twitter.com/lotzmarco" type="button">
-            <Badge
-              className={styles.badge}
-              leftSection={<IconBrandTwitter size="1.5rem" />}
-              size="xl"
-              radius="0.3rem"
-              variant="outline"
-            >
-              <Text ml="3.5rem">Twitter</Text>
-            </Badge>
-          </a>
-
-          <a target="_blank" href="https://github.com/marcolotz" type="button">
-            <Badge
-              className={styles.badge}
-              leftSection={<IconBrandGithub size="1.5rem" />}
-              size="xl"
-              radius="0.3rem"
-              variant="outline"
-            >
-              <Text ml="3.8rem">Github</Text>
-            </Badge>
-          </a>
-
-          <a
-            target="_blank"
-            href="https://scholar.google.com/citations?hl=en&view_op=list_works&gmla=AJsN-F5QS1KdMYiF5OV9acpzgB_1h-RalA6WUxpgjxB5CRaeuyyprGL3AGfqiKKGpdpgqtCCIk-v4htT06LUuFkQKlC_k3yRFw&user=TeyCW8MAAAAJ"
-            type="button"
-          >
-            <Badge
-              className={styles.badge}
-              leftSection={<IconBrandGoogle size="1.5rem" />}
-              size="xl"
-              radius="0.3rem"
-              variant="outline"
-            >
-              <Text ml="1.3rem">Google Scholar</Text>
-            </Badge>
-          </a>
+        <Stack align="center">
+          {PLATFORMS.map(({ label, href, icon: Icon }) => (
+            <a key={label} target="_blank" rel="noopener noreferrer" href={href}>
+              <Badge
+                classNames={{ root: styles.badge, section: styles.badgeSection }}
+                leftSection={<Icon size="1.5rem" />}
+                size="xl"
+                radius="0.3rem"
+                variant="outline"
+              >
+                {label}
+              </Badge>
+            </a>
+          ))}
         </Stack>
       </Center>
     </Container>
   );
 };
 
-export default Index;
+export default Contact;
