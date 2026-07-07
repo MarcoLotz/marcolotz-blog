@@ -28,11 +28,13 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Typecheck
-        run: npm run typecheck
-
+      # Build first: it generates next-env.d.ts and .next/types, which
+      # typecheck depends on.
       - name: Build
         run: npm run build
+
+      - name: Typecheck
+        run: npm run typecheck
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
