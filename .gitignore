@@ -38,3 +38,10 @@ next-env.d.ts
 credentials.json
 
 .idea
+
+# cloudflare
+.wrangler/
+
+# editors
+.cursor/
+.claude/

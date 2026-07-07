@@ -7,11 +7,11 @@ const AboutPage: React.FC = () => {
     <>
       <Head>
         <title>Marco Aurélio Lotz | About</title>
-        <meta name="description" content="About Marco Lotz"/>
+        <meta name="description" content="About Marco Lotz" />
       </Head>
-      <About/>
+      <About />
     </>
   );
-}
+};
 
 export default AboutPage;

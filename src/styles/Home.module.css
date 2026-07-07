@@ -1,0 +1,7 @@
+.paginationControl[data-active] {
+  background-color: #56813c;
+
+  &:hover {
+    background-color: #5e8b44;
+  }
+}

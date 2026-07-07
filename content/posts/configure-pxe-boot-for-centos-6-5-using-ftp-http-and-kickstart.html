@@ -1,0 +1,517 @@
+<p>This is my first true posts in the blog (yep, hello worlds do not count ), so how about we start from the beginning (brilliant!). How about how deploy a Linux OS on a cluster?</p>
+<p>One can say: “Oh, but I know how! I just need to get a Linux iso and install on all the machines. All I need is a keyboard, a monitor, a usb stick/cd drive (if this still exists) and a mouse.” Yeah, sure. This would be too much of a monkey job too. All this time that you expend doing this you could be doing more productive stuff ;)  Having to configure all the details again and again for all the machines is boring, unproductive and wastes the time of the person that is doing this.</p>
+<p>In order to perform this installation, first we need to select a Linux distribution. How about CentOS 6.5? It’s the latest release (at the moment that I am writing this post) and looks like the procedure is quite straight forward for all the distributions once you have a decent template.</p>
+<p>Before you start all the process, please check if the client machines allow boot through network. One can verify this on the BIOS. If there is an option (and a boot priority) for LAN boot, your machine most likely supports PXE protocol.<br />
+Oh yeah, sure. And what is PXE protocol?<br />
+It stands for Preboot eXecution Environment (just call <i>“pixie”</i> – like that ace combat pilot, remember?). Long story short, it is an environment that allows computer to boot through network interface, ignoring all data storage devices and installed OSs.</p>
+<p>The protocol itself is a combination of DHCP and TFTP:</p>
+<ul>
+<li>DHCP is used to locate the appropriate boot server(s)</li>
+<li>TFTP is used to download the initial bootstrap program (and some additional files)</li>
+</ul>
+<h2>Ouch Marco, what’s DHCP, TFTP and bootstrap program?</h2>
+<p></p>
+<p><b>DHCP</b> stands for Dynamic Host Configuration Protocol. It is a network protocol that works on IP (Internet Protocol, but that level of detail is already too much) in a way to dynamically distribute network configuration parameters. Things like IP address for interfaces and other services are distributed on it. It is in the Application Layer of the Internet Protocol Suite. Basically, this protocol removes the need of a network administrator to set these items manually.</p>
+<p><b>TFTP</b>? Trivial File Transfer Protocol. Known for its simplicity (triviality? Yeah, master of obvious). Usually people use it to transfer boot files and configuration files between machines over a local environment. By trivial one can assume that it is really limited when compared to FTP, since there is no authentication (it’s on a local network – you should make sure that it is secure).</p>
+<p>Last but not least: <b>Bootstrap program</b>. In computer science, booting is basically the process of starting a computer. It has a lot of stages. Usually each stage loads a more complex program for the next state. The term itself was initially a metaphor for “the computer pulls itself up by its bootstraps”, but later was used as a technical term.</p>
+<h2>Ok, and how exactly PXE communicates with the machine?</h2>
+<ol>
+<li>The client computer ( the one that you are intending to install the OS ) broadcast (yep, broadcast are to the entire network) a DHCPDISCOVER packets, extended with PXE-specific options to port 67, using UDP protocol. This package tell the server that the client is PXE-capable and is ignored (dropped) by standard DHCP servers.</li>
+<li>The server (PXE redirection service) answers to the client with a DHCPOFFER to the client 68/UDP port. This answer contains:
+<ol>
+<li>PXE Discovery control field, used to define the best way to contact the PXE boot servers. It can be multicasting, broadcasting or unicasting.</li>
+<li>List of IP addresses available on the DHCP server.</li>
+<li>PXE boot menu, where each entry is a PXE Boot Server Type (in our case, this option will be the kind of installation of the OS)</li>
+<li>PXE Boot Prompt, that tells the user to press a defined key to see the boot menu.</li>
+<li>Time-out. It launches the first boot menu entry if it expires. In this first version of document, this feature is not implemented. But is really easily done and I will probably edit this post in the future to allow this feature.</li>
+</ol>
+</li><li>Now it needs an IP to be able to contact the PXE Boot server – since it has options to define and the server must be able to found out what machine defined which options. The client sends a DHCPREQUEST with PXE-specific options to port 67/UDP. It can multicast or unicast, depending on the preferences set on the DHCPOFFER.</li>
+<li>Once the PXE Boot server receives the package, it sends a DHCPACK, which includes:
+<ol>
+<li>The complete file path to download the NBP (Network Bootstrap Program) via TFTP</li>
+<li>The multicast TFTP configuration</li>
+<li>PXE Boot Server type and PXE Boot layer it answer – this allows multiple boot servers to run from a daemon, but the scope is beyond this document.</li>
+</ol>
+</li><li>After the client receive the DHCPACK, the NBP is uploaded into the client RAM and executed. It may or may not be verified, by checksum, before being executed (available for 2.1 version of PXE).</li>
+</ol>
+<p>One can visualize the flow in the image below:</p>
+<p><img loading="lazy" src="/wp-content/uploads/2014/05/pxe.gif" alt="pxefinal" /></p>
+<p>More details on this protocol can be found on the <a href="http://download.intel.com/design/archives/wfm/downloads/pxespec.pdf"><b>Intel Website</b></a></p>
+<h2>How’s the network layout of the example used in the example?</h2>
+<p>Here it is ;)</p>
+<p><img loading="lazy" src="/wp-content/uploads/2014/05/network1.jpeg" alt="network" /></p>
+<p>Ok, ok, let’s go to the Linux part:</p>
+<p></p><h2>Network interfaces configuration</h2>
+<p>You just need to follow the topology of the network in this step and remember to enable ip forwarding. So:</p>
+<ul>
+<li>Eth0 is the outside network.</li>
+<li>Eth1 is the local network, managed by the DHCP server.</li>
+</ul>
+<p>To enable IP Forwarding do:</p>
+<p></p><pre>$ echo 1 &gt; /proc/sys/net/ipv4/ip_forward</pre>
+<p></p>
+<p>To test if the ip forwarding is enabled (do as sudoer, plz):</p>
+<p></p><pre>$ /sbin/sysctl net.ipv4.ip_forward</pre>
+<p></p>
+<p>if it returns <b>1</b>, then the IP forwarding is enabled. If it returns 0, do:</p>
+<p></p><pre>$ /sbin/sysctl -w net.ipv4.ip_forward=1</pre>
+<p></p>
+<h2>DHCP Service installation</h2>
+<p>Not rocket science, do: </p>
+<p></p><pre>$ yum install dhcp</pre>
+<p>Now one needs to configure the <i>/etc/dhcp/dhcpd.conf</i></p>
+<p>No worries, I got an example. But it is of paramount important that you set the correct IP address of the TFTP (boot) server.</p>
+<p>So, put in the <i>dhcpd.conf</i> the following content:</p>
+<pre>#
+# DHCP Server Configuration file.
+# see /usr/share/doc/dhcp*/dhcpd.conf.sample
+# see 'man 5 dhcpd.conf'
+#
+# Written by Marco Aurélio Lotz
+
+ddns-update-style interim;
+
+# Added for PXE boot support
+allow booting;
+allow bootp;
+
+option option-128 code 128 = string;
+option option-129 code 129 = text;
+
+#next-server 10.10.15.1;
+filename "pxelinux.0";
+ignore client-updates;
+
+# Network address and subnet mask
+subnet 10.10.15.0 netmask 255.255.255.0 {
+option routers 10.10.15.1;
+option subnet-mask 255.255.255.0;
+option domain-name "cluster";
+option domain-name-servers 10.10.10.1;
+
+# Range of lease IP address, should be based
+# On the size of the network
+range dynamic-bootp 10.10.15.100 10.10.15.254;
+
+# Broadcast address
+option broadcast-address 10.10.15.255;
+
+# Default lease time
+default-lease-time 864000000;
+# Maximum lease time
+#max-lease-time 43200;
+}
+</pre>
+<p>Why such a huge lease time? Because I do not intend to have a node changing address and messing all the <i>/etc/hosts</i> configuration and making me reconfigure all my MapReduce Cluster. If you don’t mind to have small lease times, do as you want.</p>
+<p>On range dynamic-bootp attribute, one defines the range of ip that wants to have distributed for DHCP clients in that subnet. The subnet that it distributes IPs is the one configured in eth1, so the 10.10.15.0 subnet.</p>
+<p>Don’t forget that comments start with # and the this file should probably be modified by you in order to reflect your own network (owrly?)</p>
+<p>Once you configured all this, do:</p>
+<p>To make the changes and verify if your configurations have a correct syntax (albeit they can be illogical)</p>
+<pre>$ service dhcpd restart </pre>
+<p>Define the service to start automatically during the system boot:</p>
+<pre>$ chkconfig dhcpd on</pre>
+<h2>TFTP time!</h2>
+<p>Get the tftp/ server:</p>
+<p></p><pre>$ yum install tftp-server</pre>
+<p>Tftp in CentOS runs under the <b>xinetd</b>, that is a open-source super-server daemon which runs on many Unix-like systems. It manages internet based connectivity. By default, the tftp comes disabled (not impressive, since it is by its nature so insecure).</p>
+<p>To enable it, one has to modify <i>/etc/xinetd.d/tftp<i></i></i></p><i><i>
+<p>There’s a field called disable. Set it to ‘no’. Aside from that, in order to make it easier for you to debug (or just check logs) of what happened once the clients communicated to it, one should set it to really verbose by adding the <i>–vvv</i> option in the arguments section.</p>
+<p>Here is an example of the content of this file:</p>
+<pre># default: off
+# description: The tftp server serves files using the trivial file transfer
+# protocol. The tftp protocol is often used to boot diskless
+# workstations, download configuration files to network-aware printers,
+# and to start the installation process for some operating systems.
+
+service tftp
+{
+socket_type = dgram
+protocol = udp
+wait = yes
+user = root
+server = /usr/sbin/in.tftpd
+server_args = -vvv -s /var/lib/tftpboot
+disable = no
+per_source = 11
+cps = 100 2
+flags = IPv4
+}
+</pre>
+<p>The <i>/var/lib/tftpboot</i> defines where are going to be the bootstrap files that you will need to perform network boot. You can change this directory, if you wish. Most of the tftp configuration files probably follow this template (which I would recommend you to keep it) and have the exactly same content.</p>
+</i><p><i>The <i>–s</i> is a secure option used to limit the access to your files when other users connect to the tftp. This will make the tftp run under chroot (aka chroot jail)</i></p>
+<h2> Install the Apache webserver (http service)</h2>
+<p>
+</p>
+<p>Do:</p>
+<pre>$ yum install httpd</pre>
+<p>Then edit the file <i>/etc/httpd/conf/httpd.conf</i> in order to set the ServerName to your server IP Address and Port 80. In my case, the content of that line is set to:</p>
+<pre>ServerName 10.10.15.1:80</pre>
+<p>Start the Apache server and enable it to boot start by running the following commands:</p>
+<pre>$ service httpd start
+$ chkconfig httpd on</pre>
+<p>To verify is the server is running smooth perform:</p>
+<pre>$ service httpd status</pre>
+<h2> Firewall</h2>
+<p></p>
+<p><b>Note:</b> this is a little bit tricky, because you may have set another rules to your firewall. Basically what you have do to is Open UDP port 69 in the firewall and TCP Port 80. In order to do this, you can just add the following lines to the file <i>/etc/sysconfig/iptables</i> :</p>
+<pre>-A INPUT -p udp -m state --state NEW -m udp --dport 69 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
+</pre>
+<p>In the default file, I would suggest to add these lines right after the SSH opening port line, that is:</p>
+<pre>-A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT</pre>
+<p><b>Note:</b> Keep in mind that this may cause you some troubles. If the firewall is incorrectly configured, your client machine is going to find the DHCP server but will have problems to find the TFTP server.</p>
+<p>Once you performed all the configuration, do service restart and check if it is running smoothly:</p>
+<pre>$ service iptables restart
+$ service iptables status
+</pre>
+<p>If you have spent lots of time trying to configure it, but you still have problems for find server machine, you can try the following. <em>(DANGER!)</em></p>
+<pre>$ service iptables stop</pre>
+<p>This will disable your iptables firewall and your computer will be vulnerable for outside connections, I totally do not recommend this solution.</p>
+<p>After the stop command, run the boot sequence again. If it solves your tftp problem, then the problem is in your iptables. Correctly configure it and turn on the firewall again.</p>
+<h2>Syslinux</h2>
+<p>Now that all the server daemons are correctly installed, it’s time to install <b>Syslinux</b>. (– Hmmm, ok, but what is this foul creature?) It’s a project that assembles a whole collection of bootloaders. This way, you can boot OS from multiples sources, including CD and Network. For the network – that is our case – we’re going to use PXELINUX. So, let’s start. First part is (guess what!) Install Syslinux:</p>
+<pre>$ yum install syslinux</pre>
+<p>Copy Syslinux files to /tftpboot directory:</p>
+<pre>$ cp /usr/share/syslinux/pxelinux.0 /var/lib/tftpboot/
+$ cp /usr/share/syslinux/menu.c32 /var/lib/tftpboot/
+$ cp /usr/share/syslinux/memdisk /var/lib/tftpboot/
+$ cp /usr/share/syslinux/mboot.c32 /var/lib/tftpboot/
+$ cp /usr/share/syslinux/chain.c32 /var/lib/tftpboot/</pre>
+<p>Make a new directory for the PXE basic menu files (Yes Sir! These are the options that will be (or not) displayed to the user once the machines boots)</p>
+<pre>$ mkdir /var/lib/tftpboot/pxelinux.cfg</pre>
+<p>Inside the <i>pxelinux.cfg</i> directory (yes! it’s a directory. Not a file extension, although it looks like one), create a file named <i>default</i> and insert the following content into it:</p>
+<pre>default menu.c32
+prompt 0
+
+MENU TITLE PXE Menu
+
+LABEL MinimalInstallation
+MENU LABEL centos-6.5-64-LiveDVD (Developer install)
+KERNEL images/centos-6.5-64/vmlinuz
+APPEND initrd=images/centos-6.5-64/initrd.img nomodeset ksdevice=bootif ip=dhcp ks=http://10.10.15.1/mirrors/centos/6.5/ks.cfg
+
+LABEL Interactive
+MENU LABEL centos-6.5-64-LiveDVD (interactive)
+KERNEL images/centos-6.5-64/vmlinuz
+APPEND initrd=images/centos-6.5-64/initrd.img nomodeset ksdevice=bootif ip=dhcp ks=http://10.10.15.1/mirrors/centos/6.5/ks-interactive.cfg
+</pre>
+<p>Needless to say, one must chose the http server address for the lines that start with <em>ks=</em></p>
+<p>In my personal case I didn’t implement the second option, that is the Interactive option. One can implement it if desired ;)</p>
+<p><strong>Important Note: </strong>Keep in mind that the APPEND line is the final line of each label, thus the browser probably formatted that line to look line two lines, when it is actually only one.</p>
+<h2>Image Selection</h2>
+<p>Once you have finished to configure the <i>default </i>file<i>, </i>one has to place the linux kernel and the RAM image into the <i>/tftpboot</i> directory.</p>
+<p>I strongly recommend to create a new directory for each Linux distribution that you may have created an option in the <em>default</em>. It is important that the path follows the KERNEL and APPEND directives.</p>
+<p>Thus run the following command in the server machine to create the directory:</p>
+<p></p><pre>$ mkdir -p /var/lib/tftpboot/images/centos-6.5-64</pre>
+<p><b>Here comes a catchy part:</b> For each Linux distribution that you may want to install, you need to get the <i>vmlinuz</i> (that is the kernel) and <i>initrd.img</i> (initial RAM image) of it. In my personal case, I have downloaded the following version of <b>centOS:CentOS-6.5-x86_64-bin-DVD1.iso</b>(you can get it at www.centos.org)</p>
+<p>Why am i not the minimal iso? Well, because I really wanted to perform a full developer workspace installation. This installation requires several packages that are not available in the minimal installation.</p>
+<p>Again, why not a Live installation? Well, looks like in the Live installations, the RAM image actually is huge, since it is made to be able to run the OS into RAM without installing it. Remember that we’re going to transfer this files through a TFTP server? So yeah, the TFTP server tends to be quite slow to transfer huge files. Thus Live versions were not made to be used on PXE. Aside from that, the kernel is named vmlinuz0 instead of vmlinuz.</p>
+<p>Then, get the bin versions and everything will be fine, with lots of sunshine! ;)<br />
+In order to get the files from the distribution you have chosen, you need to first mount the downloaded iso and then copy the files from it. Let’s assume that your iso is in the folder <i>/linuximages/CentOS-6.5-x86_64-bin-DVD1.iso</i></p>
+<p>So to mount it, perform:</p>
+<pre>$ mount /linuximages/CentOS-6.5-x86_64-bin-DVD1.iso /mnt -o loop</pre>
+<p>Don’t forget that you need to have sudoers privileges to mount! (yeah, its a sbin binary)<br />
+Now go to the tftp directory, by doing:</p>
+<pre>$cd /var/lib/tftpboot/images/centos-6.5-64cp /mnt/isolinux/vmlinuz
+$cp /mnt/isolinux/initrd.img</pre>
+<p>To check out if you performed the correct file disposition for the tftp, do the following command:</p>
+<pre>$tree /var/lib/tftpboot</pre>
+<p>The output probably is in the format:</p>
+<pre>tree
+├── chain.c32
+├── images
+│   └── centos-6.5-64
+│   ├── initrd.img
+│   └── vmlinuz
+├── mboot.c32
+├── memdisk
+├── menu.c32
+├── pxelinux.0
+└── pxelinux.cfg
+└── default
+ 3 directories, 8 files
+</pre>
+<p>if you can’t perform treecommand, nothing that the following command won’t solve:</p>
+<pre>$ yum install tree</pre>
+<h2>Copying the image to the HTTP server</h2>
+<p>We’re almost there! Time for the Http server image configuration. You need to put all the content of the mounted image in the directory that you specified in the <i>default</i>file and in the <i>kickstart</i> file, which in our case is:</p>
+<p><i>/mirrors/centos/6.5/<i></i></i></p><i><i>
+<p>Remember that the absolute path for the webserver is <i>/var/www/html/</i>, thus you have to perform the following commands to copy the image to there:</p>
+<pre>$mkdir -p /var/www/html/mirrors/centos/6.5/
+$cd /var/www/html/mirrors/centos/6.5/</pre>
+<p>And copy all the files from the mounted image into that directory:</p>
+<pre>$cp -r /mnt/* .</pre>
+<p>Don’t forget that you can name this directories as it pleases you. But it needs to be configured in the <i>default</i>PXE file and in the <i>kickstart</i> file (that will be discussed later)</p>
+<p>Running a sample tree command for the file structure, one can see:</p>
+<pre>├── CentOS_BuildTag
+├── EFI
+│   ├── BOOT
+│   │   ├── BOOTX64.conf
+│   │   ├── BOOTX64.efi
+│   │   ├── splash.xpm.gz
+│   │   └── TRANS.TBL
+│   └── TRANS.TBL
+├── EULA
+├── GPL
+├── images
+│   ├── efiboot.img
+│   ├── efidisk.img
+│   ├── install.img
+│   ├── pxeboot
+│   │   ├── initrd.img
+│   │   ├── TRANS.TBL
+│   │   └── vmlinuz
+│   └── TRANS.TBL
+├── isolinux
+│   ├── boot.cat
+│   ├── boot.msg
+.
+.
+.
+</pre>
+<p>(yes! am not going to post all the image tree here. Too many lines, but you got how it works)</p>
+<p></p><h2> Kickstart file</h2>
+<p></p>
+<p>Now it’s time for the kickstart file. This file is of paramount important, since it defines the configurations of the machine without you having to interact with it. (No monkey work, more developing time, yey!)<br />
+<br />
+You can use anaconda or another kickstart generator in order to create this file. In my personal case, I wrote the script myself.</p>
+<pre>[root@server 6.5]# cat ks.cfg
+#!/bin/bash
+# Kickstart for CentOS 6.5 for Hadoop Cluster
+# By Marco Aurélio Lotz (marcolotz.com)
+# Install system on the machine.
+install
+
+# Use http as the package repository
+# It is where are the image files
+
+url --url http://10.10.15.1/mirrors/centos/6.5/
+
+# Use the text installation interface.
+#text
+# Use UTF-8 encoded USA English as the Language
+lang en_US.UTF-8
+
+# Configure time zone.
+timezone America/Sao_Paulo
+
+# Use Br-abnt2 keyboard.
+keyboard br-abnt2
+
+# Set bootloader location.
+bootloader --location=mbr --driveorder=sda rhgb quiet
+
+# Set root password
+# Use crypt to create a encripted one
+rootpw --plaintext TellThePasswordYouWant
+
+# Enable shadowing and defines algorithm
+authconfig --enableshadow --passalgo=sha512
+
+# Disables SELinux for default
+# This is a little tricky with cloudera manager
+selinux --disabled
+
+#####################################################
+# Configure Network device
+#####################################################
+
+# Use DHCP and disable IPv6
+# set hostname to hduser
+network --onboot yes --device eth0 --bootproto dhcp --noipv6 --hostname=hduser
+
+# Disable firewall
+firewall --service=ssh
+
+#####################################################
+# Partition the hard disk
+#####################################################
+
+# Clear the master boot record on the hard drive.
+zerombr yes
+
+# Clear existing partitions
+clearpart --all --initlabel
+
+# Create RAID
+# Note: Minimum partition size is 1.
+part raid.11 --size 100000 --asprimary --ondrive=sda
+part swap --size 8192 --asprimary --ondrive=sda
+part raid.12 --size 100000 --asprimary --ondrive=sda
+part raid.13 --grow --asprimary --ondrive=sda --size=1
+part raid.21 --size 100000 --asprimary --ondrive=sdb
+part swap --size 8192 --asprimary --ondrive=sdb
+part raid.22 --size 100000 --asprimary --ondrive=sdb
+part raid.23 --grow --asprimary --ondrive=sdb --size=1
+part raid.31 --size 100000 --asprimary --ondrive=sdc
+part swap --size 8192 --asprimary --ondrive=sdc
+part raid.32 --size 100000 --asprimary --ondrive=sdc
+part raid.33 --grow --asprimary --ondrive=sdc --size=1
+raid / --fstype ext4 --level=1 --device=md0 raid.11 raid.21
+raid /opt --fstype ext4 --level=0 --device=md1 raid.12 raid.31
+raid /usr/local --fstype ext4 --level=0 --device=md2 raid.22 raid.32
+raid /dump --fstype ext4 --level=0 --device=md3 raid.13 raid.23 raid.33
+
+#####################################################
+# Specify packages to install
+#####################################################
+
+# Define tha packages that are going to be installed
+%packages
+
+#The commented lines were used for minimal installation
+# Install core packages
+# @Base
+# Don't install OpenJDK
+#-java
+# Install wget.
+# wget
+# Install vim text editor
+# vim
+# Install the Emacs text editor
+# emacs
+
+# Install rsync
+# rsync
+
+#Make Developer Workstation Install
+@additional-devel
+@base
+@core
+@debugging
+@basic-desktop
+@desktop-debugging
+@desktop-platform
+@desktop-platform-devel
+@development
+@directory-client
+@eclipse
+@emacs
+@fonts
+@general-desktop
+@graphical-admin-tools
+@graphics
+@input-methods
+@internet-browser
+@java-platform
+@legacy-x
+@network-file-system-client
+@performance
+@perl-runtime
+@print-client
+@remote-desktop-clients
+@server-platform
+@server-platform-devel
+@server-policy
+@tex
+@technical-writing
+@virtualization
+@virtualization-client
+@virtualization-platform
+@workstation-policy
+@x11
+libgcrypt-devel
+libXinerama-devel
+openmotif-devel
+libXmu-devel
+xorg-x11-proto-devel
+startup-notification-devel
+libgnomeui-devel
+libbonobo-devel
+junit
+libXau-devel
+libXrandr-devel
+popt-devel
+gnome-python2-desktop
+libdrm-devel
+libxslt-devel
+libglade2-devel
+gnutls-devel
+mtools
+pax
+oddjob
+wodim
+sgpio
+genisoimage
+device-mapper-persistent-data
+systemtap-client
+abrt-gui
+desktop-file-utils
+ant
+rpmdevtools
+jpackage-utils
+rpmlint
+samba-winbind
+certmonger
+pam_krb5
+krb5-workstation
+netpbm-progs
+openmotif
+libXmu
+libXp
+perl-DBD-SQLite
+libvirt-java
+
+# Dont install Openjdk
+# Due to Hadoop compatibility
+-java
+
+%end
+
+#####################################################
+# Post installation configuration
+#####################################################
+
+
+# Enable post process logging.
+%post --log=~/install-post.log
+
+# Comment the Hadoop section if using a manager,
+# as Cloudera or HortonWorks managers.
+# Create hadoop user hduser with password hduser
+#useradd -m -p hduser hduser
+
+# Create group Hadoop
+#groupadd hadoop
+
+# Change user hduser's current group to hadoop
+# usermod -g hadoop hduser
+
+# Tell the nodes hostnmae and ip address of the admin
+# machine.
+echo "10.10.15.1 server.cluster" &gt;&gt; /etc/hosts
+
+# Configure administrative privilege to hadoop group
+# Configure the kernel settings
+
+ulimit -u
+
+#####################################################
+# Startup services
+#####################################################
+
+service sshd start
+
+chkconfig sshd on
+
+%end
+
+# Reboot after installation
+reboot
+
+# Disable first boot configuration.
+firstboot --disable
+
+</pre>
+<p>Ok, I guess the script above is quite self explanatory (if you have a question, please do not hesitate to post on the comments). Just remember to set the timezone the your correct timezone and keyboard to your region keyboard.</p>
+<p>For more information about the attributes in this file, please refer to:<br />
+<a href="https://www.centos.org/docs/5/html/Installation_Guide-en-US/s1-kickstart2-options.html">https://www.centos.org/docs/5/html/Installation_Guide-en-US/s1-kickstart2-options.html</a></p>
+<p></p><p>Another important thing is that you need to configure partition hard disk to reflect your hardware configuration (really!?). In my scenario I was using three disks in RAID. Don’t forget that if you want to get all the unallocated space to a partition, aside from telling it to grow, you need to set the minimum size to 1 MB (standards, who are we to discuss with them?)</p>
+<h2>The sunshine, that joyful moment</h2>
+<p>Now that we have finally configured everything, you are good to go. Just restart your client computer, make sure that the network boot is set as a primary option and see the magic happens :)</p>
+<p>In the current configuration, it will probably need two enters to be pressed. One can be removed by making a timeout in the PXE default file, making the system auto select the first boot option. The second one can be select by modifying the ks.cfg  (kickstart file), making sure that the network will be auto-selected (by auto I mean that the script will select it). Also, there’s also a really good reference guide, that helps you to perform about the same procedure with virtual machines. It is available at:<br />
+<a href="http://simms-teach.com/howtos/203-pxe-install-v2.pdf">http://simms-teach.com/howtos/203-pxe-install-v2.pdf</a><br />
+Please fell free tow rite comments and give me feedbacks about this post. If you find an error or a typo, please let me know.<br />
+See you soon!</p>
+  			
+			</i></i></i>

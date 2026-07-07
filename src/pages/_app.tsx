@@ -1,25 +1,17 @@
-import Footer from '@/components/Footer'
-import Header from '@/components/Header'
+import '@mantine/core/styles.css';
+import '@/styles/globals.css';
 
-import type {AppProps} from 'next/app'
-import {MantineProvider} from '@mantine/core';
+import { MantineProvider } from '@mantine/core';
+import type { AppProps } from 'next/app';
+import Footer from '@/components/Footer';
+import Header from '@/components/Header';
 
-import '@/styles/globals.css'
-import {AuthProvider} from '@/hooks/useAuth';
-import {EditPostProvider} from '@/hooks/useEdit';
-
-export default function App({Component, pageProps}: AppProps) {
+export default function App({ Component, pageProps }: AppProps) {
   return (
-    <AuthProvider>
-      <EditPostProvider>
-        <MantineProvider
-          withGlobalStyles
-          withNormalizeCSS>
-          <Header/>
-          <Component {...pageProps} />
-          <Footer/>
-        </MantineProvider>
-      </EditPostProvider>
-    </AuthProvider>
+    <MantineProvider defaultColorScheme="light">
+      <Header />
+      <Component {...pageProps} />
+      <Footer />
+    </MantineProvider>
   );
 }

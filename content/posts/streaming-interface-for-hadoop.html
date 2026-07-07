@@ -1,0 +1,44 @@
+<h1>What is the Streaming Interface?</h1>
+<p>Let’s suppose you are not friends with javenese. Let’s suppose that you don’t like Java at all. Whether it is due to its slower Virtual Machine performance – although there are java examples that run quicker than optimized C in some special scenarios) or just because it is too high level for you, it is fine. Hadoop understands you and for this reason implements the called Streaming Interface.</p>
+<p>The Streaming Interface literally allows any application to use Hadoop for MapReduce. Thus, you can write your mappers in python, jython, or just give the binaries for it (even shell binaries!).<br />
+The syntax for using this kind of behavior is the following:</p>
+<p style="padding-left:30px"><code>$hadoop jar $HADOOP_HOME/hadoop-streaming.jar -input [input dir] -output [output dir] -mapper [map application] -reducer [reducer application]</code></p>
+<p>One needs to keep in mind that supplying a mapper is mandatory, since the default mapper of Hadoop won’t work. This is due to the fact that the default mapper output is of the type <em>TextInputFormat</em>.<br />
+<em>TextInputFormat<strong> </strong></em>generates <em>LongWritable</em> keys and <em>Text</em> values. By convention, the Streaming output keys and values are both of type <em>Text</em>. Since there is no conversion from <em>LongWritable</em> to <em>Text</em>, the job will tragically fail.</p>
+<p>Yeah Yeah. But isn’t the <em>LongWritable</em> part of the input key really important for<em> TextInputFormat</em>? Not really. In the <em>TextInputFormat</em>, the <em>LongWritable</em> key is just the offset in the line where the given <em>Text</em> value (word) is. Probably you won’t use it. (and if you are going to use it, maybe it’s better to code in java and create your own InputFormat).</p>
+<p>Now, here’s a catchy part: Although the Hadoop keeps the default <em>TextInputFormat</em> for reading the file, it will only pass the Value to the mapper (and thus the <em>Text</em> part). The Key will be ignored.<br />
+(Hm, but i want to use another input format, how can i make it ignore the key? Just set the <strong>stream.map.input.ignoreKey</strong> to true).</p>
+<h1>Complete Syntax</h1>
+<p>Ok, ok. What are all the parameters for the streaming process?</p>
+<p style="padding-left:30px"><code>% hadoop jar $HADOOP_HOME/hadoop-streaming.jar \<br />
+-input [your input file] \<br />
+-output [your output file] \<br />
+-inputformat org.apache.hadoop.mapred.TextInputFormat [or another that you wish] \<br />
+-mapper [your defined mapper] \<br />
+-partitioner org.apache.hadoop.mapred.lib.HashPartitioner [or another that you wish] \<br />
+-numReduceTasks [How many Reduce Tasks do you want] \<br />
+-reducer org.apache.hadoop.mapred.lib.IdentityReducer [or the Reducer application that you want] \<br />
+-outputformat org.apache.hadoop.mapred.TextOutputFormat [or another one that you fancy]<br />
+-combiner [the combiner that you want - optional]</code></p>
+<h1>What about the key-value separator?</h1>
+<p>By default the separator is a tab character ( ‘\t’ ) . But worry not, one can change it. You can do it by setting the following attributes:</p>
+<p style="padding-left:30px"><strong><em>stream.map.input.field.separator</em></strong><br />
+<strong> <em> stream.map.output.field.separator</em></strong><br />
+<strong> <em> stream.reduce.input.field.separator</em></strong><br />
+<strong> <em> stream.reduce.output.field.separator</em></strong></p>
+<p>Also, the key from the mapper/reducer may be composed of more than one field.<br />
+Let’s suppose the following case and assume that the field separator is  ‘;’</p>
+<p style="padding-left:30px">cat;dog;1</p>
+<p>one should be able to select cat;dog as a key, and define 1 has a value.<br />
+this can be done by modifying the  following attributes:</p>
+<p style="padding-left:30px"><strong><em>stream.num.map.output.key.fields</em></strong><br />
+<strong> <em> stream.num.reduce.output.key.fields</em></strong></p>
+<p>The value will always be the remaining fields.</p>
+<h1>Example:</h1>
+<p>Nothing is true in Hadoop if cannot be proved by a simple word counter or just cat example. So, how about if we use the classic Unix binaries in order to make cat example?<br />
+I’ll let you define your own input. After that, one just needs to do the following:</p>
+<p style="padding-left:30px"><code>$hadoop jar hadoop-streaming.jar -input [your text input] -output [your output] -mapper /bin/cat</code></p>
+<p>It should print the exact content of each of the file, splitting it into several files at the end (due to the partitions scheme, which I will explain in a future post).</p>
+<p>If you want to know how many newlines, words and letters are in each partition, use the <em>wc </em>unix tool as a reducer. Just do the following command:</p>
+<p style="padding-left:30px"><code>$hadoop jar hadoop-streaming.jar -input [your text input] -output [your output] -mapper /bin/cat -reducer /usr/bin/cat</code></p>
+<p>And that’s it. Now you can use your own application for MapReduce, without having deep troubles into the Java aspect of it. Best of luck ;)</p>

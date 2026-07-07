@@ -1,71 +1,82 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# marcolotz.com
 
-## Getting Started
+Source of [www.marcolotz.com](https://www.marcolotz.com) — a fully static blog built with
+[Next.js](https://nextjs.org/) (static export) and [Mantine](https://mantine.dev/), deployed to
+**Cloudflare Pages** by GitHub Actions on every push to `main`.
 
-Installing Dependencies:
+## Architecture
 
-```bash
-npm install
-# or
-yarn
-```
+There is no server side. Everything is pre-rendered at build time:
 
-If your firebase credential is not set, put your credential file (JSON) in src/assets as credential.json.
-The credential.json must have this format:
+- **Posts** live in the repository under [`content/`](content/):
+  - [`content/posts.json`](content/posts.json) — ordered post metadata (`id`, `slug`, `title`,
+    `author`, `category`, `createdAt`, `search`).
+  - `content/posts/<slug>.html` — one sanitized HTML body per post.
+- **Legacy asset URLs are load-bearing.** External bibliography cites documents at their original
+  WordPress-era paths, so they are served verbatim from [`public/`](public/) and must never move:
+  - `/wp-content/uploads/...` (images, PDFs such as `LotzReport.pdf`)
+  - `/share/RTX/...` (firmware archives)
+- **Legacy permalinks** of the form `/?pageIndex=N&postId=<firestore-id>` keep working: the post
+  `id`s are the original Firestore document IDs, and the home page resolves them client-side
+  (see [`src/pages/index.tsx`](src/pages/index.tsx)). The page size is fixed at 3 for the same
+  reason.
+- Pagination and search run client-side over the statically embedded post list.
 
-```json
-{
-  "type": "string",
-  "project_id": "string",
-  "private_key_id": "string",
-  "private_key": "string",
-  "client_email": "string",
-  "client_id": "string",
-  "auth_uri": "string",
-  "token_uri": "string",
-  "auth_provider_x509_cert_url": "string",
-  "client_x509_cert_url": "string"
-}
-```
+`scripts/extract-posts.mjs` documents the one-time migration that produced `content/` from the old
+Firestore seed data (`src/assets/populateData.json`); it is kept for provenance and can be re-run
+with `npm run extract`.
 
-So, if the database is not initially updated, run the following script:
-```bash
-npm run populate
-#or
-yarn populate
-```
+## Development
 
-Finally, run the development server:
+Requires Node ≥ 22 (see `.nvmrc`).
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+npm ci
+npm run dev        # dev server on http://localhost:3000
+npm run build      # static export to out/
+npm run preview    # serve out/ with wrangler (Cloudflare Pages emulation)
+npm run lint       # ESLint
+npm run typecheck  # tsc --noEmit
+npm run format     # Prettier
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Adding or editing a post
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+1. Add/edit the HTML body in `content/posts/<slug>.html`.
+2. Add/update its metadata entry in `content/posts.json` (newest first). New posts need a unique
+   `id` (any stable string), a `slug` matching the filename, and `search` set to the uppercased
+   title tokens.
+3. Static assets go under `public/` — use `/wp-content/uploads/<year>/<month>/` for continuity.
+4. `npm run build` and check the result.
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+## Deployment
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+[`deploy.yml`](.github/workflows/deploy.yml) builds and deploys `main` to the Cloudflare Pages
+project `marcolotz-blog` via `wrangler pages deploy`. [`ci.yml`](.github/workflows/ci.yml) runs
+lint/typecheck/format/build on pull requests.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+Required GitHub Actions secrets:
 
-## Learn More
+| Secret                  | Value                                                     |
+| ----------------------- | --------------------------------------------------------- |
+| `CLOUDFLARE_API_TOKEN`  | API token with the **Cloudflare Pages — Edit** permission |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID (dashboard → Overview)              |
 
-To learn more about Next.js, take a look at the following resources:
+One-time Cloudflare setup:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Create the Pages project: `npx wrangler pages project create marcolotz-blog --production-branch main`
+   (or dashboard → Workers & Pages → Create → Pages → Direct Upload).
+2. Add the two repository secrets above.
+3. Push to `main` — the workflow deploys to `marcolotz-blog.pages.dev`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+### DNS (Google Cloud DNS is kept)
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+1. In the Pages project, add the custom domain `www.marcolotz.com`.
+2. In Google Cloud DNS, change the `www` CNAME from `cname.vercel-dns.com` to
+   `marcolotz-blog.pages.dev`.
+3. Apex (`marcolotz.com`) note: with the zone outside Cloudflare there is no native apex redirect;
+   either keep a redirect at the current apex host or move the zone to Cloudflare later for a
+   proper `marcolotz.com → www.marcolotz.com` redirect rule.
+4. After cutover, spot-check the bibliography URLs, e.g.
+   `https://www.marcolotz.com/wp-content/uploads/2014/05/LotzReport.pdf` and
+   `https://www.marcolotz.com/share/RTX/RTX1343.zip`.

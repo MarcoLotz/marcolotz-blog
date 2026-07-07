@@ -1,0 +1,45 @@
+.container {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  border: 0.0625rem solid #ced4da;
+}
+
+.badgeContainer {
+  @media screen and (max-width: 600px) {
+    flex-direction: column;
+  }
+}
+
+.badge {
+  background: #ffffff;
+  color: #56813c;
+  border: #56813c 0.0625rem solid;
+
+  span {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+}
+
+.htmlProvider {
+  figure,
+  img {
+    text-align: center;
+    max-height: 500px;
+    display: block;
+    margin: 0 auto;
+  }
+
+  pre {
+    background-color: #e9ebe8;
+  }
+
+  a {
+    color: #56813c;
+  }
+}

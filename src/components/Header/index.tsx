@@ -1,150 +1,93 @@
-import {useState} from 'react';
-import {
-  Avatar,
-  Burger,
-  Button,
-  Container,
-  Group,
-  Menu,
-  Paper,
-  rem,
-  Tabs,
-  Text,
-  Title,
-  UnstyledButton,
-} from '@mantine/core';
-import {useDisclosure} from '@mantine/hooks';
-import Router from 'next/router';
-import {useAuth} from '@/hooks/useAuth';
-import {IconChevronDown, IconFilePlus, IconLogout} from '@tabler/icons-react';
-import styles from './index.module.scss';
-import {useEditPost} from '@/hooks/useEdit';
+import { Burger, Container, Group, Paper, Tabs, Text, Title } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import { useRouter } from 'next/router';
+import styles from './index.module.css';
+
+interface NavTab {
+  value: string;
+  label: string;
+  href: string;
+  external?: boolean;
+}
+
+const NAV_TABS: NavTab[] = [
+  { value: 'home', label: 'Home', href: '/' },
+  { value: 'about', label: 'About', href: '/about' },
+  { value: 'github', label: 'Github', href: 'https://github.com/marcolotz', external: true },
+  { value: 'contact', label: 'Contact', href: '/contact' },
+];
+
+const TAB_BY_ROUTE: Record<string, string> = {
+  '/': 'home',
+  '/about': 'about',
+  '/contact': 'contact',
+};
 
 const Header = () => {
-  const [opened, {toggle}] = useDisclosure(false);
-  const [userMenuOpened, setUserMenuOpened] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>('home');
-  const {authData, signOut} = useAuth();
-  const {setEditPost} = useEditPost();
+  const [opened, { toggle, close }] = useDisclosure(false);
+  const router = useRouter();
+  const activeTab = TAB_BY_ROUTE[router.pathname] ?? 'home';
 
-  const handlePush = (route: string) => {
-    Router.push(route);
-    toggle();
+  const openTab = (tab: NavTab) => {
+    if (tab.external) {
+      window.open(tab.href, '_blank', 'noopener,noreferrer');
+    } else {
+      void router.push(tab.href);
+    }
+    close();
   };
 
-  const tabs =
-    <>
-      <Tabs.List>
-        <Tabs.Tab value="home"  onClick={() => handlePush('/')}>
-          Home
+  const tabList = (
+    <Tabs.List>
+      {NAV_TABS.map((tab) => (
+        <Tabs.Tab key={tab.value} value={tab.value} onClick={() => openTab(tab)}>
+          {tab.label}
         </Tabs.Tab>
-        <Tabs.Tab value="about" onClick={() => handlePush('/about')}>
-          About
-        </Tabs.Tab>
-        <Tabs.Tab value="github"
-                  onClick={() => window.open('https://github.com/marcolotz', '_blank', 'noopener,noreferrer')}>
-          Github
-        </Tabs.Tab>
-          <Tabs.Tab value="contact" onClick={() => handlePush('/contact')}>
-          Contact
-        </Tabs.Tab>
-      </Tabs.List>
-      <Tabs.Panel value="home">{null}</Tabs.Panel>
-      <Tabs.Panel value="about">{null}</Tabs.Panel>
-      <Tabs.Panel value="github">{null}</Tabs.Panel>
-      <Tabs.Panel value="contact">{null}</Tabs.Panel>
-    </>;
+      ))}
+    </Tabs.List>
+  );
 
   return (
-    <div style={{position: 'relative'}} className={styles.header}>
+    <header className={styles.header}>
       <Container className={styles.mainSection}>
-        <Group position="apart">
+        <Group justify="space-between">
           <div>
             <Title size={45}>Marco Aurelio Lotz</Title>
-            <Text className={styles.subtitle} size={15}>Thoughts about Big Data and Embedded
-              Systems</Text>
+            <Text className={styles.subtitle} fz={15}>
+              Thoughts about Big Data and Embedded Systems
+            </Text>
           </div>
-
-          <Burger opened={opened} onClick={toggle} className={styles.burger} size="sm"
-                  aria-label="Marco Lotz website menu"/>
-          <Menu
-            width={260}
-            position="bottom-end"
-            transitionProps={{transition: 'pop-top-right'}}
-            onClose={() => setUserMenuOpened(false)}
-            onOpen={() => setUserMenuOpened(true)}
-            withinPortal
-          >
-
-            <Menu.Target>
-              <UnstyledButton
-                sx={{display: authData.signedIn ? 'box' : 'none'}}
-                data-active={userMenuOpened}
-              >
-                <Group spacing={7}>
-                  <Avatar src="https://github.com/marcolotz.png" alt={authData.name} radius="xl"
-                          size={20}/>
-                  <Text weight={500} size="sm" sx={{lineHeight: 1}} mr={3}>
-                    {authData.name}
-                  </Text>
-                  <IconChevronDown size={rem(12)} stroke={1.5}/>
-                </Group>
-              </UnstyledButton>
-            </Menu.Target>
-            <Menu.Dropdown>
-              <Menu.Label>Settings</Menu.Label>
-              <Menu.Item
-                onClick={() => {
-                  Router.push('/admin/newPost');
-                  setEditPost(null);
-                }}
-                icon={<IconFilePlus size="1.3rem" stroke={1.5}/>}>
-                New Post
-              </Menu.Item>
-
-              <Menu.Item
-                onClick={() => signOut()}
-                icon={<IconLogout size="1.3rem" stroke={1.5}/>}>
-                Logout
-              </Menu.Item>
-
-              <Menu.Divider/>
-
-            </Menu.Dropdown>
-          </Menu>
-
-          {!authData.signedIn &&
-            <Button
-              variant="outline"
-              className={styles.signinButton}
-              // color='green'
-              onClick={() => Router.push('/admin')}>
-              Sign In
-            </Button>}
+          <Burger
+            opened={opened}
+            onClick={toggle}
+            className={styles.burger}
+            size="sm"
+            aria-label="Marco Lotz website menu"
+          />
         </Group>
       </Container>
       <Container>
         <Tabs
-          defaultValue="home"
           variant="outline"
+          value={activeTab}
           classNames={{
             root: styles.tabs,
-            tabsList: styles.tabsList,
+            list: styles.tabsList,
             tab: styles.tab,
           }}
-          value={activeTab}
-          onTabChange={(value) => value !== 'Github' && setActiveTab(value || 'home')}
         >
-          {tabs}
+          {tabList}
         </Tabs>
       </Container>
-      {opened && <Paper className={styles.dropdown} withBorder>
-        <Tabs defaultValue="home" className={styles.dropdownTabs}>
-          {tabs}
-        </Tabs>
-      </Paper>}
-    </div>
+      {opened && (
+        <Paper className={styles.dropdown} withBorder>
+          <Tabs value={activeTab} className={styles.dropdownTabs}>
+            {tabList}
+          </Tabs>
+        </Paper>
+      )}
+    </header>
   );
-}
+};
 
 export default Header;

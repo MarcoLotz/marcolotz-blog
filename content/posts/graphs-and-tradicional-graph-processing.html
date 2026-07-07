@@ -1,0 +1,33 @@
+<h1>Graphs</h1>
+<blockquote>
+<p>“How cute! So many arrows and lines!”<br /> <i>– Anyone who never had to traverse a large graph.</i></p>
+</blockquote>
+<p>Finally, I will be able to quote myself, yey!</p>
+<blockquote>
+<p>Graphs, in computer science, are an abstract data type that implements the graph and hypergraph concepts from mathematics. This data structure has a finite – and possible mutable – set of ordered pairs consisting of edges (or arcs), and nodes (or vertices). An edge can be described mathematically as edge(x,y) which is said to go from x to y. There may be some data structures associated with edges, called edge value. This structure can represent numeric attributes (for example costs) or just a symbolic label. Also there is the important definition of adjacent(G, x, y), that is a function that tests for a given graph data structure G if the edge(x,y) exists.”</p>
+</blockquote>
+<p>As mentioned by <a href="/wp-content/uploads/2014/05/LotzReport.pdf"> (Lotz, 2013) </a></p>
+<p>There are many flavours of graphs, each one of them take into account some detail of the graph structure. In example, an <strong>undirected graph </strong> is a graph in which the edges do not take into account the orientation, as opposed to the <strong>direct graphs</strong> in which they take.</p>
+<p>Here’s a quick example of a directed graph:</p>
+<figure><img src="/wp-content/uploads/2014/06/439px-Simple_directed_graph.svg.png" alt="" /><figcaption>Directed Graph Example</figcaption></figure>
+<p style="text-align:center">Example of a directed graph (Wolfram Alpha)</p>
+<h2>Large Scale Graph Processing Problem</h2>
+<p><br /></p>
+<blockquote>
+<p>“Houston, we have a problem” <br /> <i>– The same person, after having to compute a large Graph.</i> </p>
+</blockquote>
+<p>In the big data analysis, graphs are usually known as hard to compute. <a href="http://kowshik.github.io/JPregel/pregel_paper.pdf"><i>(Malewicz &amp; all, 2010)</i></a> – (not my quote this time) points that the main factors that contribute to these difficulties are:</p>
+<ol>
+<li>Poor locality of memory access.</li>
+<li>Very little work per vertex.</li>
+<li>Changing degree of parallelism.</li>
+<li>Running over many machines makes the problem worse (i.e. how will I make a machine communicate with another without generating I/O bottleneck?)</li>
+</ol>
+<h2>Large Scale Graph Pre-Pregel Solutions</h2>
+<p>Before the introduction of Pregel <i>(Malewicz &amp; all, 2010)</i> – yep, the same guy that I quoted above… that’s because he knows all in this field –  the state-of-art solutions to this problem were:</p>
+<ul>
+<li>The implementation of a customised framework: that demands lots of engineering effort. It’s like: “Oh, I have a large graph problem that will demand me a Big Data approach. Since I have nothing else to do, I will implement my own framework for the problem. It’s ok if it only takes 10 years and I be really problem specific.”</li>
+<li>Implementation of a graph analysis algorithm using the MapReduce platform: this proves to be inefficient, since it has to store too much data after each MapReduce job and requires too much communication between the stages (which may cause excessive I/O traffic). Aside from that, it is quite hard to implement graph algorithms, since there is no option to make calculations node/vertex-oriented on the framework.</li>
+</ul>
+<p>In order to completely solve the I/O problem, one may use a single computer graph solution – you said a super computer? – This would, however, require not commodity hardware and would not be scalable. The existing distributed graph systems that existed before the Pregel introduction were not fault tolerant, which may cause the loss of huge amount of work in the case of any failure.</p>
+<p>and that’s why my next post will be about Pregel, a Large Graph processing framework developed by Google.</p>

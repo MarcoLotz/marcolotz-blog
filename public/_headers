@@ -1,0 +1,10 @@
+# Legacy WordPress-era assets are immutable historical documents.
+/wp-content/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/share/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Next.js build output is content-hashed.
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable

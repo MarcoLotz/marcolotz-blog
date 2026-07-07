@@ -1,0 +1,50 @@
+<h2>First of all, <span style="text-decoration:underline"><strong>why</strong></span> was MapReduce originally created?</h2>
+<p>Basically Google needed a solution for making large computation jobs easily parallelizable, allowing data to be distributed in a number of machines connected through a network. Aside from that, it had to handle the machine failure in a transparent way and manage load balancing issues.</p>
+<h2><span style="text-decoration:underline"><strong>What</strong></span> are MapReduce true strengths?</h2>
+<p>One may say that MapReduce magic is based on the Map and Reduce functions application. I must confess mate, that I strongly disagree. The main feature that made MapReduce so popular is its capability of automatic parallelization and distribution, combined with the simple interface. These factor summed with transparent failure handling for most of the errors made this framework so popular.</p>
+<h2><strong>A little more depth on the paper:</strong></h2>
+<p>MapReduce was originally mentioned in a Google paper (Dean &amp; Ghemawat, 2004 – <em><a href="http://static.googleusercontent.com/media/research.google.com/en//archive/mapreduce-osdi04.pdf">link here</a></em>) as a solution to make computations in Big Data using a parallel approach and commodity-computer clusters. In contrast to Hadoop, that is written in Java, the Google’s framework is written in C++. The document describes how a parallel framework would behave using the Map and Reduce functions from functional programming over large data sets.</p>
+<p>In this solution there would be two main steps – called Map and Reduce –, with an optional step between the first and the second – called Combine. The Map step would run first, do computations in the input key-value pair and generate a new output key-value. One must keep in mind that the format of the input key-value pairs does not need to necessarily match the output format pair. The Reduce step would assemble all values of the same key, performing other computations over it. As a result, this last step would output key-value pairs. One of the most trivial applications of MapReduce is to implement word counts.</p>
+<p>The pseudo-code for this application, is given bellow:</p>
+<p>map(String key, String value):</p>
+<p style="padding-left:30px">// key: document name<br />
+// value: document contents<br />
+for each word w in value:<br />
+EmitIntermediate(w, “1”);</p>
+<p>reduce(String key, Iterator values):</p>
+<p style="padding-left:30px">// key: a word<br />
+// values: a list of counts<br />
+int result = 0;<br />
+for each v in values:<br />
+result += ParseInt(v);<br />
+Emit(AsString(result));</p>
+<p style="text-align:left">As one can notice, the map reads all the words in a record (in this case a record can be a line) and emits the word as a <em>key</em> and the number 1 as a <em>value.</em><br />
+Later on, the reduce will group all values of the same key. Let’s give an example: imagine that the word ‘house’ appears three times in the record. The input of the reducer would be [house,[1,1,1]]. In the reducer, it will sum all the values for the key house and give as an output the following key value: [house,[3]].</p>
+<p style="text-align:center">Here’s an image of how this would look like in a MapReduce framework:<br />
+<a href="/wp-content/uploads/2014/05/mapreduce.jpg"><img loading="lazy" src="/wp-content/uploads/2014/05/mapreduce.jpg" alt="mapreduce" /></a><br />
+Image from the Original MapReduce Google paper.</p>
+<p>As a few other classical examples of MapReduce applications, one can say:</p>
+<ul>
+<li>Count of URL access frequency</li>
+<li>Reverse Web-link Graph</li>
+<li>Distributed Grep</li>
+<li>Term Vector per host</li>
+</ul>
+<p>In order to avoid too much network traffic, the paper describes how the framework should try to maintain the data locality. This means that it should always try to make sure that a machine running Map jobs has the data in its memory/local storage, avoiding to fetch it from the network. Aiming to reduce the network through put of a mapper, the optional combiner step, described before, is used. The Combiner performs computations on the output of the mappers in a given machine before sending it to the Reducers – that may be in another machine.</p>
+<p>The document also describes how the elements of the framework should behave in case of faults. These elements, in the paper, are called as worker and master. They will be divided into more specific elements in open-source implementations.<br />
+Since the Google has only described the approach in the paper and not released its proprietary software, many open-source frameworks were created in order to implement the model. As examples one may say Hadoop or the limited MapReduce feature in MongoDB.</p>
+<p>The run-time should take care of non-expert programmers details, like partitioning the input data, scheduling the program execution across the large set of machines, handling machines failures (in a transparent way, of  course) and managing the inter-machine communication. An experienced user may tune these parameters, as how the input data will be partitioned between workers.</p>
+<h2><strong>Key Concepts:</strong></h2>
+<ul>
+<li><strong>Fault Tolerance: </strong>It must tolerate machine failure gracefully. In order to perform this, the master pings the workers periodically. If the master does not receive responses from a given worker in a definite time lapse, the master will define the work as failed in that worker. In this case, all map tasks completed by the faulty worker are thrown away and are given to another available worker. Similar happens if the worker was still processing a map or a reduce task. Note that if the worker already completed its reduce part, all computation was already finished by the time it failed and does not need to be reset. As a primary point of failure, if the master fails, all the job fails. For this reason, one may define periodical checkpoints for the master, in order to save its data structure. All computations that happen between the last checkpoint and the master failure are lost.</li>
+</ul>
+<ul>
+<li><strong>Locality: </strong>In order to avoid network traffic, the framework tries to make sure that all the input data is locally available to the machines that are going to perform computations on them. In the original description, it uses Google File System (GFS) with replication factor set to 3 and block sizes of 64 MB. This means that the same block of 64 MB (that compose a file in the file system) will have identical copies in three different machines. The master knows where are the blocks and try to schedule map jobs in that machine. If that fails, the master tries to allocate a machine near a replica of the tasks input data (i.e. a worker machine in the same rack of the data machine).</li>
+</ul>
+<ul>
+<li><strong>Task Granularity: </strong>Assuming that each map phase is divided into M pieces and that each Reduce phase is divided into R pieces, the ideal would be that M and R are a lot larger than the number of worker machines. This is due the fact that a worker performing many different tasks improves dynamic load balancing. Aside from that, it increases the recovery speed in the case of worker fail (since the many map tasks it has completed can be spread out across all the other machines).</li>
+<li><strong>Backup Tasks: </strong>Sometimes, a Map or Reducer worker may behave a lot more slow than the others in the cluster. This may hold the total processing time and make it equal to the processing time of that single slow machine. The original paper describes an alternative called Backup Tasks, that are scheduled by the master when a MapReduce operation is close to completion. These are tasks that are scheduled by the Master of the in-progress tasks. Thus, the MapReduce operation completes when the primary or the backup finishes.</li>
+<li><strong>Counters: </strong>Sometimes one may desire to count events occurrences. For this reason, counts where created. The counter values in each workers are periodically propagated to the master. The master then aggregates (Yep. Looks like Pregel aggregators came from this place ;) ) the counter values of a successful map and reduce task and return them to the user code when the MapReduce operation is complete. There is also a current counter value available in the master status, so a human watching the process can keep track of how it is behaving.</li>
+</ul>
+<p>Well, I guess with all the concepts above, Hadoop will be a piece of cake for you. If you have any question about the original MapReduce article or anything related, please let me know.</p>
+<p>My next post will be about Hadoop and MapReduce 1.0. See you soon!</p>

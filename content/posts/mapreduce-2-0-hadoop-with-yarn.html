@@ -1,0 +1,31 @@
+<h1>Context</h1>
+<p>After the release of Hadoop version 0.20.203 the complete framework was restructured. Actually, almost a complete new framework was created. This framework is called MapReduce 2.0 (MRv2) or YARN.</p>
+<p>The short YARN stands for “Yet Another Resources Negotiator” (but if you are GNU mate and you are into recursive anonymous, call it: YARN Application Resource Negotiator). This modification has as a main goal to make the MapReduce component less dependent of Hadoop itself. Furthermore, this will improve the possibility of using programming interfaces other than MapReduce over it and increase the scalability of the framework.</p>
+<p>Originally YARN was expected to be in production by the end of 2012. Guest what: that didn’t happen. Sound like the world cup building in Brazil huh? Actually, it went from alpha to beta only on 25th of August of 2013 (with version 2.1.0-beta). On 7th of October  of 2013 the first stable YARN version was released, with Hadoop 2.2.0. The alpha and beta versions were however  available on most of the third parties distributions, like Cloudera CDH4. Cloudera included warnings to remind consumers from the instability of the build by that time.</p>
+<h1></h1>
+<h1>Why?</h1>
+<p>This is a solution to a scalability bottleneck that was happening with MapReduce 1.0. For very large clusters (and with that I mean clusters larger than 4000 nodes) Hadoop was not performing as it should be. Then Yahoo though “How about we make some modifications in the framework in order to solve these problems?” and that how it appeared. You can read more about it in the following link:<br />
+<a href="https://developer.yahoo.com/blogs/hadoop/next-generation-apache-hadoop-mapreduce-3061.html">The Next Generation of Apache MapReduce<br />
+</a></p>
+<p> </p>
+<h1>What are the differences?</h1>
+<p>One of the main characteristics of YARN is that the original JobTracker was split into two daemons: the <em>ResourceManager</em> and the <em>ApplicationMaster</em>. In a first though, this removes the single point of failure from the JobTracker and puts it in the ResourceManager. I will get into more detail on it later.</p>
+<h2></h2>
+<p>Here’s a small diagram of how it works, as depicted in the Apache Hadoop website:</p>
+<figure><img loading="lazy" src="/wp-content/uploads/2014/06/yarn_architecture.gif" alt="" /><figcaption>Hadoop Yarn Diagram</figcaption></figure>
+<h2>ResourceManager</h2>
+<p>It monitors the cluster status, indicating which resources are available to which nodes. This is only possible due to the concept of container (which I will explain later). The Resource Manager arbitrates the resources among all the applications in the system.</p>
+<h2></h2>
+<h2>ApplicationMaster:</h2>
+<p>It manages the parallel execution of any job. In Yarn this is done separately for each individual job. It is a framework specific library and negotiates the resources from the ResourceManager and works with the NodeManager to execute and monitor tasks.</p>
+<p>Oh! Almost forgot to say. The<em> TaskTracker</em> became the <em>NodeManager</em>! So let’s get into it:</p>
+<h2></h2>
+<h2>NodeManager:</h2>
+<p>The TaskTracker was transformed in the NodeManager, that with the ResourceManager compose the data-computation framework. It is a machine individual framework agent that takes care of the containers by monitoring the resource usage (memory, disk, CPU, network) and reporting the results to the Scheduler that is inside the ResourceManager. This is a quite interesting modification, once with this other Apaches frameworks are not running over the Hadoop TaskTracker structure, but are actually running on the NodeManager structure that belong to YARN. This way, they can freely implement how they agent is going to behave and communicate with the ApplicationMaster.</p>
+<p> </p>
+<h2>Back to the ResourceManager:</h2>
+<p>The ResourceManager daemon has two main components: the Scheduler and the ApplicationsManager. The first allocates the resource for the various running applications and takes into considerations capacity and queues constraints. The second is a basic scheduler, without tracking status or monitoring an application. It only performs the scheduling taking into account the resource requirements of an application, by taking an abstract notion of the ResourceContainer.</p>
+<h3>ResourceContainer:</h3>
+<p>Also called container – it incorporates elements such memory, CPU, disk and network. In the early versions only memory is supported – and I guess that in the moment that I am writing this post, it is still like that.</p>
+<p>Now, let’s get back to the ApplicationsManager. It does the job-submissions acceptance work. It makes the negotiation with the first container for executing the application specific ApplicationMaster and also provides the service for restarting the ApplicationMaster container on failure – therefore helping to solve one of the single points of failure that was present in the original Hadoop framework (yey! :D )</p>
+<p>One of the major features of YARN is that it is backward compatible with Hadoop non-YARN. For this reason, applications that were developed for the previous versions do not need to be recompiled in order to run on a YARN cluster.</p>

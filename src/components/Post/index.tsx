@@ -1,127 +1,80 @@
-import { ActionIcon, Badge, Button, Container, Flex, Text, Title, TypographyStylesProvider } from '@mantine/core';
-import { IconCalendarTime, IconEdit, IconFolder, IconShare, IconTrash, IconUser } from '@tabler/icons-react';
-import sanitizeHtml from 'sanitize-html';
-import { toast } from 'react-toastify';
-import styles from './index.module.scss'
+import {
+  Badge,
+  Button,
+  Container,
+  Flex,
+  Text,
+  Title,
+  TypographyStylesProvider,
+} from '@mantine/core';
+import { useClipboard } from '@mantine/hooks';
+import { IconCalendarTime, IconCheck, IconFolder, IconShare, IconUser } from '@tabler/icons-react';
+import React from 'react';
+import type { Post as PostData } from '@/lib/posts';
+import styles from './index.module.css';
 
-
-import React, { useCallback } from 'react';
-import Router from 'next/router';
-import api from '@/services/api';
-import { useAuth } from '@/hooks/useAuth';
-import { useEditPost } from '@/hooks/useEdit';
-
-interface PostData {
-  id: string;
-  title: string;
-  author: string;
-  body: string;
-  category: string;
-  createdAt: string;
-  pageIndex?: number; // not static on search
+interface PostProps {
+  post: PostData;
+  /** Page the post is rendered on; undefined while searching (not linkable). */
+  pageIndex?: number;
 }
 
-const dateFormatter = new Intl.DateTimeFormat(undefined, {
-  dateStyle: 'long'
-});
+// Fixed locale: with a static export the date is rendered at build time and
+// hydrated in the browser, so it must not depend on the runtime locale.
+const dateFormatter = new Intl.DateTimeFormat('en-US', { dateStyle: 'long' });
 
-const Post: React.FC<PostData> = ({ id, title, author, body, category, createdAt, pageIndex }) => {
-  const { authData } = useAuth();
-  const { setEditPost } = useEditPost();
+const Post: React.FC<PostProps> = ({ post, pageIndex }) => {
+  const clipboard = useClipboard({ timeout: 2000 });
 
-  const copyLink = useCallback(() => {
-    const link = `https://www.marcolotz.com/?pageIndex=${pageIndex}&postId=${id}`
-    navigator.clipboard.writeText(link).then(_ => {
-      toast.info('Url copied to clipboard!', {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-      });
-    });
-  }, [pageIndex, id]);
+  const copyLink = () => {
+    clipboard.copy(`https://www.marcolotz.com/?pageIndex=${pageIndex}&postId=${post.id}`);
+  };
 
-  const handleDelete = useCallback(async () => {
-    if (!confirm('Do you really want to delete this post?'))
-      return;
-
-    await api.delete('/api/deletePost', {
-        id,
-      });
-    Router.reload();
-  }, [id]);
-
-  const handleEdit = useCallback(() => {
-    setEditPost({
-      id,
-      title,
-      body,
-      category,
-    });
-    Router.push('/admin/newPost');
-  }, [setEditPost, body, category, title, id]);
-
-  return <Container id={id} className={styles.container}>
-    <Flex justify="space-between">
-      <Title mb="1.0rem" mr="1.5rem">{title}</Title>
-      {
-        authData.signedIn &&
-        <Flex gap="0.5rem">
-          <ActionIcon onClick={handleDelete} color="red" variant="filled"><IconTrash /></ActionIcon>
-          <ActionIcon onClick={handleEdit} color="yellow" variant="filled"><IconEdit /></ActionIcon>
-        </Flex>
-      }
-    </Flex>
-    <Flex className={styles.badgeContainer} gap='0.5rem' mb="md">
-      <Badge className={styles.badge} size="lg" radius="sm" variant="outline">
-        <IconCalendarTime size={16} />
-        <Text mt={2.3}>{dateFormatter.format(new Date(createdAt))}</Text>
-      </Badge>
-      <Badge className={styles.badge} size="lg" radius="sm" variant="outline">
-        <IconUser size={16} />
-        <Text mt={2.3}>{author}</Text>
-      </Badge>
-      {
-        category &&
+  return (
+    <Container id={post.id} className={styles.container}>
+      <Flex justify="space-between">
+        <Title mb="1.0rem" mr="1.5rem">
+          {post.title}
+        </Title>
+      </Flex>
+      <Flex className={styles.badgeContainer} gap="0.5rem" mb="md">
         <Badge className={styles.badge} size="lg" radius="sm" variant="outline">
-          <IconFolder size={16} />
-          <Text mt={2.3}>{category}</Text>
-        </Badge>}
+          <IconCalendarTime size={16} />
+          <Text mt={2.3}>{dateFormatter.format(new Date(post.createdAt))}</Text>
+        </Badge>
+        <Badge className={styles.badge} size="lg" radius="sm" variant="outline">
+          <IconUser size={16} />
+          <Text mt={2.3}>{post.author}</Text>
+        </Badge>
+        {post.category && (
+          <Badge className={styles.badge} size="lg" radius="sm" variant="outline">
+            <IconFolder size={16} />
+            <Text mt={2.3}>{post.category}</Text>
+          </Badge>
+        )}
+        {!!pageIndex && (
+          <Button
+            className={styles.badge}
+            onClick={copyLink}
+            h={26}
+            w={30}
+            p={6}
+            variant="outline"
+            radius="sm"
+            aria-label="share button"
+            size="compact-sm"
+          >
+            {clipboard.copied ? <IconCheck /> : <IconShare />}
+          </Button>
+        )}
+      </Flex>
 
-      {!!pageIndex && <Button
-        className={styles.badge}
-        onClick={() => copyLink()}
-        h={26}
-        w={30}
-        p={6}
-        variant="outline"
-        radius="sm"
-        aria-label="share button"
-        compact>
-        <IconShare />
-      </Button>}
-    </Flex>
-
-    <TypographyStylesProvider className={styles.htmlProvider}>
-      <div
-        dangerouslySetInnerHTML={{
-          __html: sanitizeHtml(body, {
-            allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img']),
-            allowedSchemes: sanitizeHtml.defaults.allowedSchemes.concat(['data']),
-            allowedAttributes: {
-              ...sanitizeHtml.defaults.allowedAttributes,
-              span: [ 'style'],
-              p: [ 'style']
-            },
-          })
-        }}
-      />
-    </TypographyStylesProvider>
-  </Container >;
-}
+      <TypographyStylesProvider className={styles.htmlProvider}>
+        {/* Bodies are sanitized ahead of time by scripts/extract-posts.mjs. */}
+        <div dangerouslySetInnerHTML={{ __html: post.body }} />
+      </TypographyStylesProvider>
+    </Container>
+  );
+};
 
 export default Post;

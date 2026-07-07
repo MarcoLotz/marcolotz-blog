@@ -1,0 +1,122 @@
+[
+  {
+    "id": "ACQLtZegaVrFRy2RKuje",
+    "slug": "build-a-custom-hadoop-giraph-project-with-maven",
+    "title": "Build a Custom Hadoop/Giraph Project with Maven",
+    "author": "Marco Aurélio Lotz",
+    "category": "Big Data",
+    "createdAt": "2015-06-18T03:00:00.000Z",
+    "search": ["BUILD", "A", "CUSTOM", "HADOOP/GIRAPH", "PROJECT", "WITH", "MAVEN"]
+  },
+  {
+    "id": "ZvtCAyr22RfhfpUtHGOD",
+    "slug": "giraph-configuration-details",
+    "title": "Giraph configuration details",
+    "author": "Marco Aurélio Lotz",
+    "category": "Big Data",
+    "createdAt": "2015-06-04T03:00:00.000Z",
+    "search": ["GIRAPH", "CONFIGURATION", "DETAILS"]
+  },
+  {
+    "id": "HigfhDPyMIaiKggRNFnc",
+    "slug": "electronics-for-kids",
+    "title": "Electronics for Kids",
+    "author": "Marco Aurélio Lotz",
+    "category": "Embedded Systems",
+    "createdAt": "2015-01-19T03:00:00.000Z",
+    "search": ["ELECTRONICS", "FOR", "KIDS"]
+  },
+  {
+    "id": "tCDF9hlrg7EO5CVVgoH8",
+    "slug": "rtx-rtos-adaptation-for-lpc1343-and-lpc1347",
+    "title": "RTX RTOS Adaptation for LPC1343 and LPC1347",
+    "author": "Marco Aurélio Lotz",
+    "category": "Embedded Systems",
+    "createdAt": "2014-11-22T03:00:00.000Z",
+    "search": ["RTX", "RTOS", "ADAPTATION", "FOR", "LPC1343", "AND", "LPC1347"]
+  },
+  {
+    "id": "msziw4RjwAhs26pc0U7n",
+    "slug": "a-new-dawn",
+    "title": "A New Dawn",
+    "author": "Marco Aurélio Lotz",
+    "category": "Big Data",
+    "createdAt": "2014-11-02T03:00:00.000Z",
+    "search": ["A", "NEW", "DAWN"]
+  },
+  {
+    "id": "050bbrgQN69MbY3QcOjk",
+    "slug": "graphs-and-tradicional-graph-processing",
+    "title": "Graphs and Tradicional Graph Processing",
+    "author": "Marco Aurélio Lotz",
+    "category": "Big Data",
+    "createdAt": "2014-06-30T03:00:00.000Z",
+    "search": ["GRAPHS", "AND", "TRADICIONAL", "GRAPH", "PROCESSING"]
+  },
+  {
+    "id": "Tifv2O7RhnXHQves24Zv",
+    "slug": "mapreduce-2-0-hadoop-with-yarn",
+    "title": "MapReduce 2.0: Hadoop with YARN",
+    "author": "Marco Aurélio Lotz",
+    "category": "Big Data",
+    "createdAt": "2014-06-21T03:00:00.000Z",
+    "search": ["MAPREDUCE", "2.0:", "HADOOP", "WITH", "YARN"]
+  },
+  {
+    "id": "jjJpMOeiyp4C95lgjJSe",
+    "slug": "streaming-interface-for-hadoop",
+    "title": "Streaming Interface for Hadoop",
+    "author": "Marco Aurélio Lotz",
+    "category": "Big Data",
+    "createdAt": "2014-05-30T03:00:00.000Z",
+    "search": ["STREAMING", "INTERFACE", "FOR", "HADOOP"]
+  },
+  {
+    "id": "AL5HIrTyT9BglCPVfXKQ",
+    "slug": "introduction-to-hadoop-and-mapreduce-1-0",
+    "title": "Introduction to Hadoop and MapReduce 1.0",
+    "author": "Marco Aurélio Lotz",
+    "category": "Big Data",
+    "createdAt": "2014-05-26T03:00:00.000Z",
+    "search": ["INTRODUCTION", "TO", "HADOOP", "AND", "MAPREDUCE", "1.0"]
+  },
+  {
+    "id": "2aOuuMIUDP634PwaGn6H",
+    "slug": "of-mapreduce-and-men",
+    "title": "Of MapReduce and Men",
+    "author": "Marco Aurélio Lotz",
+    "category": "Big Data",
+    "createdAt": "2014-05-16T03:00:00.000Z",
+    "search": ["OF", "MAPREDUCE", "AND", "MEN"]
+  },
+  {
+    "id": "HI3UGn2hiKJABCN8409W",
+    "slug": "configure-pxe-boot-for-centos-6-5-using-ftp-http-and-kickstart",
+    "title": "Configure PXE Boot for CentOS 6.5 using FTP, HTTP and Kickstart",
+    "author": "Marco Aurélio Lotz",
+    "category": "Big Data",
+    "createdAt": "2014-05-10T03:00:00.000Z",
+    "search": [
+      "CONFIGURE",
+      "PXE",
+      "BOOT",
+      "FOR",
+      "CENTOS",
+      "6.5",
+      "USING",
+      "FTP,",
+      "HTTP",
+      "AND",
+      "KICKSTART"
+    ]
+  },
+  {
+    "id": "jtPy6RUhtW1X53z9FIuY",
+    "slug": "and-it-begins",
+    "title": "And it begins!",
+    "author": "Marco Aurélio Lotz",
+    "category": "Big Data, Embedded Systems",
+    "createdAt": "2014-04-23T03:00:00.000Z",
+    "search": ["AND", "IT", "BEGINS!"]
+  }
+]

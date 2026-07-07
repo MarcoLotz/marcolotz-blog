@@ -1,24 +1,18 @@
-import {createGetInitialProps} from '@mantine/next';
-import Document, {Head, Html, Main, NextScript} from 'next/document';
+import { ColorSchemeScript, mantineHtmlProps } from '@mantine/core';
+import Document, { Head, Html, Main, NextScript } from 'next/document';
 
-
-// as per: https://mantine.dev/guides/next/
-const getInitialProps = createGetInitialProps();
-
-export default class _Document extends Document {
-
-  static getInitialProps = getInitialProps;
-
+export default class AppDocument extends Document {
   render() {
     return (
-      <Html lang="en">
+      <Html lang="en" {...mantineHtmlProps}>
         <Head>
-          <meta name="author" content="Marco Lotz"/>
-          <link rel="icon" href="/favicon.ico"/>
+          <meta name="author" content="Marco Lotz" />
+          <link rel="icon" href="/favicon.ico" />
+          <ColorSchemeScript defaultColorScheme="light" />
         </Head>
         <body>
-        <Main/>
-        <NextScript/>
+          <Main />
+          <NextScript />
         </body>
       </Html>
     );

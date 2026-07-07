@@ -1,0 +1,103 @@
+<p>Heeeey!</p>
+<p>Today I had to deploy a single-node Apache Giraph installation in my machine. Giraph has a really good quick start guide (<a href="http://giraph.apache.org/quick_start.html"><i>here</i></a>). A few corrections need to be made in order to keep it up-to-date with the latest version available (1.1.0), but hopefully I will be able to do it this week.</p>
+<p>There are, however, a few glitches that can happen during the installation process. Here I will present quick solutions to it.</p>
+<h2> OpenJDK management.properties problem </h2>
+<p></p>
+<p>I must confess that I rather use the oracle java than the openjdk. As most of you may know, in order to run hadoop you need at least java 1.6 installed. In my current configuration, I was trying to run hadoop with Openjdk java 7, on Ubuntu 14.04.2 </p>
+<p>With all my $JAVA_HOME variables correctly set, i was getting the following error:</p>
+<pre>hduser@prometheus-UX32A:/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/management$ hadoop namenode -format
+Error: Config file not found: /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/management/management.properties
+</pre>
+<p>This code also appeared for other hadoop scripts like <i>start-dfs.sh</i>, <i>start-mapred.sh</i> – and of course <i>start-all.sh</i>.</p>
+<p>Taking a quick look at the installation, I realized that management.properties was just a broken symbolic link. Also, looks like it is directly related with Java RMI capabilities (Remove Method Invocation). This is probably how Hadoop is going to start all the daemons across the nodes. I must confess that I installed all the opendjk packages available in the Ubuntu repository and none solve my problem.</p>
+<p>This can be solved with the following workaround:</p>
+<ol>
+<li>Download the equivalent Oracle Java version <a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html"><strong> HERE</strong></a>. Keep in mind to download the same version of your openjdk (i.e. download java 6, 7 or 8 depending on your jdk).</li>
+<li>Open the Oracle Java files and copy all the content of the folder <i>/jre/lib/management/management.properties</i> into the OpenJDK equivalent folder.</li>
+<li>Run again</li>
+</ol>
+<p>Hopefully, this will solve that problem.</p>
+<h2>Giraph Mapper Allocation problem</h2>
+<p></p>
+<p>Let’s suppose you installed Giraph correctly and Hadoop MapReduce examples are running as you expect in your machine.</p>
+<p>Giraph gives, however, this very interesting line when you submit a job:</p>
+<pre>15/06/04 16:58:03 INFO job.GiraphJob: Waiting for resources... Job will start only when it gets all 2 mappers</pre>
+<p>If you want to make sure that we are talking about the same thing, here is a complete error output:</p>
+<pre>hduser@prometheus-UX32A:~$ hadoop jar /opt/apache/giraph/giraph-examples/target/giraph-examples-1.2.0-SNAPSHOT-for-hadoop-1.2.1-jar-with-dependencies.jar org.apache.giraph.GiraphRunner org.apache.giraph.examples.SimpleShortestPathsComputation -vif org.apache.giraph.io.formats.JsonLongDoubleFloatDoubleVertexInputFormat -vip /user/hduser/input/tiny_graph.txt -vof org.apache.giraph.io.formats.IdWithValueTextOutputFormat -op /user/hduser/output/shortestpaths -w 1
+15/06/04 16:57:58 INFO utils.ConfigurationUtils: No edge input format specified. Ensure your InputFormat does not require one.
+15/06/04 16:57:58 INFO utils.ConfigurationUtils: No edge output format specified. Ensure your OutputFormat does not require one.
+15/06/04 16:57:59 INFO job.GiraphJob: run: Since checkpointing is disabled (default), do not allow any task retries (setting mapred.map.max.attempts = 1, old value = 4)
+15/06/04 16:58:03 INFO job.GiraphJob: Tracking URL: http://hdhost:50030/jobdetails.jsp?jobid=job_201506041652_0003
+15/06/04 16:58:03 INFO job.GiraphJob: Waiting for resources... Job will start only when it gets all 2 mappers
+15/06/04 16:58:31 INFO mapred.JobClient: Running job: job_201506041652_0003
+15/06/04 16:58:31 INFO mapred.JobClient: Job complete: job_201506041652_0003
+15/06/04 16:58:31 INFO mapred.JobClient: Counters: 5
+15/06/04 16:58:31 INFO mapred.JobClient:   Job Counters
+15/06/04 16:58:31 INFO mapred.JobClient:     SLOTS_MILLIS_MAPS=31987
+15/06/04 16:58:31 INFO mapred.JobClient:     Total time spent by all reduces waiting after reserving slots (ms)=0
+15/06/04 16:58:31 INFO mapred.JobClient:     Total time spent by all maps waiting after reserving slots (ms)=0
+15/06/04 16:58:31 INFO mapred.JobClient:     Launched map tasks=2
+15/06/04 16:58:31 INFO mapred.JobClient:     SLOTS_MILLIS_REDUCES=0
+</pre>
+<p> Good news: It is not your fault (unless you think that giving bad hostnames to your machine is your fault). According to this  <a href="https://issues.apache.org/jira/browse/GIRAPH-970"><strong>JIRA</strong></a> there is a problem parsing hostnames. Basically, it does not recognize upper and lower letters in the hostname. This can be solved by setting a new hostname with only lower letters. To do this perform as sudo:</p>
+<pre> sudo hostname NEW_HOST_NAME </pre>
+<p>also, do not forget to change your <i>/etc/hosts</i> table to your new hostname. Keep in mind that this may affect other softwares that rely on your hostname to run. Once you change it, restart the machine and the hadoop daemons. Hopefully you will get the correct output, that in my case is:</p>
+<pre>hduser@prometheusmobile:/opt/apache/giraph/giraph-examples$ hadoop jar target/giraph-examples-1.2.0-SNAPSHOT-for-hadoop-1.2.1-jar-with-dependencies.jar org.apache.giraph.GiraphRunner org.apache.giraph.examples.SimpleShortestPathsComputation -vif org.apache.giraph.io.formats.JsonLongDoubleFloatDoubleVertexInputFormat -vip /user/hduser/input/tiny_graph.txt -vof org.apache.giraph.io.formats.IdWithValueTextOutputFormat -op /user/hduser/output/shortestpaths -w 1
+15/06/04 17:06:58 INFO utils.ConfigurationUtils: No edge input format specified. Ensure your InputFormat does not require one.
+15/06/04 17:06:58 INFO utils.ConfigurationUtils: No edge output format specified. Ensure your OutputFormat does not require one.
+15/06/04 17:06:58 INFO job.GiraphJob: run: Since checkpointing is disabled (default), do not allow any task retries (setting mapred.map.max.attempts = 1, old value = 4)
+15/06/04 17:07:02 INFO job.GiraphJob: Tracking URL: http://hdhost:50030/jobdetails.jsp?jobid=job_201506041705_0002
+15/06/04 17:07:02 INFO job.GiraphJob: Waiting for resources... Job will start only when it gets all 2 mappers
+15/06/04 17:07:31 INFO job.HaltApplicationUtils$DefaultHaltInstructionsWriter: writeHaltInstructions: To halt after next superstep execute: 'bin/halt-application --zkServer prometheusmobile.ironnetwork:22181 --zkNode /_hadoopBsp/job_201506041705_0002/_haltComputation'
+15/06/04 17:07:31 INFO mapred.JobClient: Running job: job_201506041705_0002
+15/06/04 17:07:32 INFO mapred.JobClient:  map 100% reduce 0%
+15/06/04 17:07:43 INFO mapred.JobClient: Job complete: job_201506041705_0002
+15/06/04 17:07:43 INFO mapred.JobClient: Counters: 37
+15/06/04 17:07:43 INFO mapred.JobClient:   Zookeeper halt node
+15/06/04 17:07:43 INFO mapred.JobClient:     /_hadoopBsp/job_201506041705_0002/_haltComputation=0
+15/06/04 17:07:43 INFO mapred.JobClient:   Zookeeper base path
+15/06/04 17:07:43 INFO mapred.JobClient:     /_hadoopBsp/job_201506041705_0002=0
+15/06/04 17:07:43 INFO mapred.JobClient:   Job Counters
+15/06/04 17:07:43 INFO mapred.JobClient:     SLOTS_MILLIS_MAPS=40730
+15/06/04 17:07:43 INFO mapred.JobClient:     Total time spent by all reduces waiting after reserving slots (ms)=0
+15/06/04 17:07:43 INFO mapred.JobClient:     Total time spent by all maps waiting after reserving slots (ms)=0
+15/06/04 17:07:43 INFO mapred.JobClient:     Launched map tasks=2
+15/06/04 17:07:43 INFO mapred.JobClient:     SLOTS_MILLIS_REDUCES=0
+15/06/04 17:07:43 INFO mapred.JobClient:   Giraph Timers
+15/06/04 17:07:43 INFO mapred.JobClient:     Input superstep (ms)=188
+15/06/04 17:07:43 INFO mapred.JobClient:     Total (ms)=9260
+15/06/04 17:07:43 INFO mapred.JobClient:     Superstep 2 SimpleShortestPathsComputation (ms)=62
+15/06/04 17:07:43 INFO mapred.JobClient:     Shutdown (ms)=8795
+15/06/04 17:07:43 INFO mapred.JobClient:     Superstep 0 SimpleShortestPathsComputation (ms)=75
+15/06/04 17:07:43 INFO mapred.JobClient:     Initialize (ms)=3254
+15/06/04 17:07:43 INFO mapred.JobClient:     Superstep 3 SimpleShortestPathsComputation (ms)=44
+15/06/04 17:07:43 INFO mapred.JobClient:     Superstep 1 SimpleShortestPathsComputation (ms)=61
+15/06/04 17:07:43 INFO mapred.JobClient:     Setup (ms)=32
+15/06/04 17:07:43 INFO mapred.JobClient:   Zookeeper server:port
+15/06/04 17:07:43 INFO mapred.JobClient:     prometheusmobile.ironnetwork:22181=0
+15/06/04 17:07:43 INFO mapred.JobClient:   Giraph Stats
+15/06/04 17:07:43 INFO mapred.JobClient:     Aggregate edges=12
+15/06/04 17:07:43 INFO mapred.JobClient:     Sent message bytes=0
+15/06/04 17:07:43 INFO mapred.JobClient:     Superstep=4
+15/06/04 17:07:43 INFO mapred.JobClient:     Last checkpointed superstep=0
+15/06/04 17:07:43 INFO mapred.JobClient:     Current workers=1
+15/06/04 17:07:43 INFO mapred.JobClient:     Aggregate sent messages=12
+15/06/04 17:07:43 INFO mapred.JobClient:     Current master task partition=0
+15/06/04 17:07:43 INFO mapred.JobClient:     Sent messages=0
+15/06/04 17:07:43 INFO mapred.JobClient:     Aggregate finished vertices=5
+15/06/04 17:07:43 INFO mapred.JobClient:     Aggregate sent message message bytes=267
+15/06/04 17:07:43 INFO mapred.JobClient:     Aggregate vertices=5
+15/06/04 17:07:43 INFO mapred.JobClient:   File Output Format Counters
+15/06/04 17:07:43 INFO mapred.JobClient:     Bytes Written=0
+15/06/04 17:07:43 INFO mapred.JobClient:   FileSystemCounters
+15/06/04 17:07:43 INFO mapred.JobClient:     HDFS_BYTES_READ=200
+15/06/04 17:07:43 INFO mapred.JobClient:     FILE_BYTES_WRITTEN=43376
+15/06/04 17:07:43 INFO mapred.JobClient:     HDFS_BYTES_WRITTEN=30
+15/06/04 17:07:43 INFO mapred.JobClient:   File Input Format Counters
+15/06/04 17:07:43 INFO mapred.JobClient:     Bytes Read=0
+15/06/04 17:07:43 INFO mapred.JobClient:   Map-Reduce Framework
+15/06/04 17:07:43 INFO mapred.JobClient:     Map input records=2
+15/06/04 17:07:43 INFO mapred.JobClient:     Spilled Records=0
+15/06/04 17:07:43 INFO mapred.JobClient:     Map output records=0
+15/06/04 17:07:43 INFO mapred.JobClient:     SPLIT_RAW_BYTES=88
+</pre>

@@ -2,7 +2,7 @@
   margin-top: 60px;
   border-top: 0.0625rem solid #e9ecef;
   background: white;
-  color: #4B5153;
+  color: #4b5153;
 }
 
 .footer a {
@@ -32,6 +32,6 @@
 
 @media screen and (max-width: 200px) {
   .links {
-  margin-top: 60px;
+    margin-top: 60px;
   }
 }
