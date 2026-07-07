@@ -7,7 +7,9 @@
 }
 
 body {
-  background: rgb(240, 240, 240);
+  /* White like the original site: Mantine v6 used to override the old grey
+     body background with its own global styles; keep the effective result. */
+  background: #fff;
   font-family: 'Roboto', sans-serif;
   text-align: justify;
 }
